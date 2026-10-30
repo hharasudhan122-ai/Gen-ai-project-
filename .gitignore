@@ -18,8 +18,9 @@ pnpm-debug.log*
 .env.local
 *.local
 
-# Sub-repo git folder
-divines eye/gev-build/.git/
+# Sub-repo dev folder
+divines eye/
+divines eye/**
 
 # OS files
 .DS_Store
