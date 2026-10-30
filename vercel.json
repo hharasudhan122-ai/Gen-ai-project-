@@ -1,7 +1,23 @@
 {
   "version": 2,
   "cleanUrls": true,
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "*" }
+      ]
+    }
+  ],
   "rewrites": [
+    { "source": "/api/celestrak/:group", "destination": "https://celestrak.org/NORAD/elements/gp.php?GROUP=:group&FORMAT=tle" },
+    { "source": "/api/adsblol/mil", "destination": "https://api.adsb.lol/v2/mil" },
+    { "source": "/api/adsblol/:path*", "destination": "https://api.adsb.lol/v2/:path*" },
+    { "source": "/api/opensky", "destination": "https://opensky-network.org/api/states/all" },
+    { "source": "/api/overpass", "destination": "https://overpass-api.de/api/interpreter" },
+    { "source": "/api/launches", "destination": "https://ll.thespacedevs.com/2.2.0/launch/upcoming/?limit=10" },
     { "source": "/cesium/:path*", "destination": "/divines-eye/cesium/:path*" },
     { "source": "/models/:path*", "destination": "/divines-eye/models/:path*" },
     { "source": "/assets/:file([^/]+)", "destination": "/divines-eye/assets/:file" },
