@@ -4,12 +4,7 @@
   "rewrites": [
     { "source": "/cesium/:path*", "destination": "/divines-eye/cesium/:path*" },
     { "source": "/models/:path*", "destination": "/divines-eye/models/:path*" },
-    { "source": "/assets/(index-.*)", "destination": "/divines-eye/assets/$1" },
-    { "source": "/assets/(.*\\.(json|geojsonl))", "destination": "/divines-eye/assets/$1" },
-    { "source": "/logo.svg", "destination": "/divines-eye/logo.svg" },
-    { "source": "/pin.svg", "destination": "/divines-eye/pin.svg" },
-    { "source": "/location.svg", "destination": "/divines-eye/location.svg" },
-    { "source": "/mic.svg", "destination": "/divines-eye/mic.svg" },
-    { "source": "/visual-presets.svg", "destination": "/divines-eye/visual-presets.svg" }
+    { "source": "/assets/:file([^/]+)", "destination": "/divines-eye/assets/:file" },
+    { "source": "/:file((?:logo|pin|location|mic|visual-presets)\\.svg)", "destination": "/divines-eye/:file" }
   ]
 }

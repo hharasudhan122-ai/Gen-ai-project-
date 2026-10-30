@@ -29,6 +29,19 @@ class DivineEyeManager {
     this._bindBridge();
   }
 
+  ensureFrame() {
+    if (!this.iframe) this.iframe = document.getElementById('divineEyeFrame');
+    if (this.iframe) {
+      const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      if (!isLocalHost || !this.iframe.src || this.iframe.src.includes('localhost:4173') || this.iframe.src === 'about:blank') {
+        const target = '/divines-eye/index.html';
+        if (!this.iframe.src || !this.iframe.src.endsWith(target)) {
+          this.iframe.src = target;
+        }
+      }
+    }
+  }
+
   init() {
     this.iframe = document.getElementById('divineEyeFrame');
     const canvas = document.getElementById('parziDivineOrbCanvas');
@@ -39,24 +52,12 @@ class DivineEyeManager {
       this.orb.pause();
     }
 
-    // Ensure iframe is pointing to Divine's Eye
-    if (this.iframe) {
-      const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      // On live web, always ensure it points to the bundled static build
-      if (!isLocalHost) {
-        if (!this.iframe.src || this.iframe.src === 'about:blank' || this.iframe.src.includes('localhost:4173')) {
-          this.iframe.src = './divines-eye/index.html';
-        }
-      } else {
-        if (!this.iframe.src || this.iframe.src === 'about:blank') {
-          this.iframe.src = './divines-eye/index.html';
-        }
-      }
-    }
+    this.ensureFrame();
   }
 
   onTabOpen() {
     this.active = true;
+    this.ensureFrame();
     if (this.orb) this.orb.resume();
 
     // Start periodic telemetry poll
