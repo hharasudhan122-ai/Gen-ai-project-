@@ -1,0 +1,346 @@
+/* ==========================================================================
+   Divine's Eye Tab & Parzi HUD Styles
+   Non-Intrusive, Minimal Space Cybernetic OSINT Aesthetic
+   ========================================================================== */
+
+.divine-view {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #04070c;
+}
+
+#divineEyeFrame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* ==========================================================================
+   Bottom-Center Minimalist Parzi Assistant HUD
+   Takes minimal space and never hides Divine's Eye UI
+   ========================================================================== */
+.divine-parzi-hud {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  font-family: var(--font, system-ui, sans-serif);
+  max-width: 94vw;
+}
+
+/* Ultra-Slim Bottom HUD Bar with INLINE TYPING */
+.divine-hud-bar {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  background: rgba(8, 14, 22, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(45, 224, 200, 0.4);
+  border-radius: 999px;
+  padding: 0 10px 0 3px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.85), 0 0 20px rgba(45, 224, 200, 0.18);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.divine-hud-bar:hover,
+.divine-hud-bar:focus-within {
+  border-color: rgba(45, 224, 200, 0.7);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9), 0 0 28px rgba(45, 224, 200, 0.3);
+  background: rgba(8, 14, 22, 0.92);
+}
+
+/* Minimized State: shrinks to just the small orb */
+.divine-hud-bar.minimized {
+  padding: 0;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8), 0 0 16px rgba(45, 224, 200, 0.4);
+}
+
+.divine-hud-bar.minimized .divine-target-tag,
+.divine-hud-bar.minimized .divine-input-wrap,
+.divine-hud-bar.minimized .divine-hud-actions {
+  display: none !important;
+}
+
+/* Mini Jarvis Orb Wrap (Compact 42px) */
+.divine-orb-wrap {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  background: radial-gradient(circle, rgba(45, 224, 200, 0.15) 0%, transparent 70%);
+}
+
+.divine-orb-wrap:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 10px rgba(45, 224, 200, 0.8));
+}
+
+.divine-orb-wrap canvas {
+  width: 42px;
+  height: 42px;
+  display: block;
+}
+
+/* Compact Target Tag */
+.divine-target-tag {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(45, 224, 200, 0.12);
+  border: 1px solid rgba(45, 224, 200, 0.28);
+  border-radius: 999px;
+  padding: 3px 9px;
+  font-size: 0.72rem;
+  font-family: var(--mono, monospace);
+  color: #2de0c8;
+  cursor: pointer;
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.15s;
+}
+
+.divine-target-tag:hover {
+  background: rgba(45, 224, 200, 0.24);
+  color: #fff;
+  border-color: #2de0c8;
+}
+
+.target-icon {
+  font-size: 0.75rem;
+}
+
+.target-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Inline Input: User can TYPE questions directly */
+.divine-input-wrap {
+  display: flex;
+  align-items: center;
+  width: 260px;
+}
+
+#divineInlineInput {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #dde4f0;
+  font-size: 0.8rem;
+  font-family: inherit;
+  padding: 4px 6px;
+}
+
+#divineInlineInput::placeholder {
+  color: rgba(138, 154, 184, 0.65);
+  font-size: 0.76rem;
+}
+
+/* Action Buttons */
+.divine-hud-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hud-action-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  color: #8a9ab8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  transition: all 0.18s;
+  padding: 0;
+}
+
+.hud-action-btn:hover {
+  background: rgba(45, 224, 200, 0.18);
+  border-color: rgba(45, 224, 200, 0.4);
+  color: #2de0c8;
+}
+
+.hud-action-btn.primary {
+  background: rgba(45, 224, 200, 0.2);
+  border-color: rgba(45, 224, 200, 0.4);
+  color: #2de0c8;
+  font-weight: 700;
+}
+
+.hud-action-btn.primary:hover {
+  background: #2de0c8;
+  color: #04070c;
+  box-shadow: 0 0 10px rgba(45, 224, 200, 0.5);
+}
+
+.hud-action-btn.active {
+  background: #e06060;
+  border-color: #e06060;
+  color: #fff;
+  animation: pulseDot 1s infinite;
+}
+
+.hud-action-btn.minimize-btn {
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+/* ==========================================================================
+   Floating AI Response Bubble
+   Only pops up when Parzi provides an answer, subtle and unobtrusive
+   ========================================================================== */
+.divine-hud-response {
+  pointer-events: auto;
+  width: 500px;
+  max-width: 90vw;
+  max-height: 180px;
+  background: rgba(8, 14, 22, 0.92);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(45, 224, 200, 0.45);
+  border-radius: 14px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.9), 0 0 25px rgba(45, 224, 200, 0.2);
+  animation: hudResponsePop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+@keyframes hudResponsePop {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.divine-response-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(45, 224, 200, 0.15);
+}
+
+.hud-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.68rem;
+  font-family: var(--mono, monospace);
+  font-weight: 700;
+  color: #2de0c8;
+  letter-spacing: 0.06em;
+}
+
+.divine-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2de0c8;
+  box-shadow: 0 0 6px #2de0c8;
+}
+
+.divine-status-dot.thinking {
+  background: #f0a732;
+  box-shadow: 0 0 8px #f0a732;
+  animation: pulseDot 0.8s infinite;
+}
+
+.divine-status-dot.speaking {
+  background: #2de0c8;
+  box-shadow: 0 0 8px #2de0c8;
+  animation: pulseDot 0.6s infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(1.3); }
+}
+
+.divine-response-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.icon-btn-xs {
+  background: transparent;
+  border: none;
+  color: #8a9ab8;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 2px 5px;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.icon-btn-xs:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.divine-response-text {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #dde4f0;
+  overflow-y: auto;
+  max-height: 110px;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(45, 224, 200, 0.3) transparent;
+}
+
+.divine-response-sources {
+  margin-top: 4px;
+  font-size: 0.7rem;
+  color: #8a9ab8;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.divine-response-sources a {
+  color: #2de0c8;
+  text-decoration: none;
+}
+
+.divine-response-sources a:hover {
+  text-decoration: underline;
+}

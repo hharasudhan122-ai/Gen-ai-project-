@@ -1,0 +1,661 @@
+/* ==========================================================================
+   Parzi Orb Intro — mouse-morph orb poster + scrollytelling (3 pages)
+   ========================================================================== */
+.pio-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: #0a0a0a;
+  overflow: hidden;
+  font-family: var(--font);
+  transition: opacity 0.65s ease;
+}
+
+.pio-overlay.pio-dismissed {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Scroller owns the actual scroll; pio-stage sticks to the top of it so
+   the visuals stay put while the track underneath supplies distance. */
+.pio-scroller {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.pio-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.pio-track {
+  position: relative;
+  width: 100%;
+  /* height set by JS to numPages * 100vh */
+}
+
+.pio-stage {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Orb layer — shared across every page, always present */
+.pio-orbwrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(62vh, 62vw, 620px);
+  height: min(62vh, 62vw, 620px);
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  pointer-events: auto;
+}
+
+.pio-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#pioAwake {
+  z-index: 1;
+}
+
+#pioDormant {
+  z-index: 2;
+}
+
+/* Top bar */
+.pio-topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.3rem clamp(1.25rem, 3vw, 3rem);
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.pio-topbar.pio-hide {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pio-topbar.pio-hide .pio-dot {
+  pointer-events: none;
+}
+
+.pio-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: #fff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.pio-hex {
+  font-size: 1.15rem;
+  opacity: 0.9;
+}
+
+.pio-scrolltag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+  border-left: 2px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  padding: 6px 12px;
+  border-radius: 0 6px 6px 0;
+  transition: opacity 0.4s ease;
+}
+
+.pio-scrolltag.pio-hide {
+  opacity: 0;
+}
+
+.pio-dots {
+  display: flex;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.pio-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.pio-dot-active {
+  background: #fff;
+  transform: scale(1.3);
+}
+
+/* Pages — absolutely stacked, crossfaded by scroll progress via JS */
+.pio-page {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 6rem clamp(1.25rem, 4vw, 3.25rem) 3rem;
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+.pio-page--1 {
+  opacity: 1;
+}
+
+.pio-toprow {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .pio-toprow {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+}
+
+.pio-services {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pio-line {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.pio-lede {
+  max-width: 320px;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+@media (min-width: 640px) {
+  .pio-lede {
+    text-align: right;
+    margin-left: auto;
+  }
+}
+
+.pio-botrow {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.pio-badge {
+  display: inline-block;
+  align-self: flex-start;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #fff;
+  border-left: 2px solid #fff;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  padding: 7px 14px;
+}
+
+.pio-h1 {
+  font-size: clamp(2.2rem, 5.5vw, 4rem);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: #fff;
+  text-shadow: 0 4px 28px rgba(0, 0, 0, 0.7);
+}
+
+.pio-botarea {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.pio-botarea--grid {
+  flex-direction: column;
+}
+
+@media (min-width: 900px) {
+  .pio-botarea--grid {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 3rem;
+  }
+}
+
+.pio-leftcol {
+  max-width: 34rem;
+}
+
+.pio-body {
+  margin-top: 1.25rem;
+  max-width: 30rem;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.82);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.pio-panel {
+  width: 100%;
+  max-width: 27rem;
+  max-height: 62vh;
+  overflow-y: auto;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(10, 10, 10, 0.55);
+  backdrop-filter: blur(16px);
+  padding: 0 1.25rem;
+  scrollbar-width: thin;
+}
+
+.pio-row {
+  display: flex;
+  gap: 1.1rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.pio-row-last {
+  border-bottom: none;
+}
+
+.pio-idx {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: rgba(255, 255, 255, 0.55);
+  padding-top: 2px;
+}
+
+.pio-t {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #fff;
+}
+
+.pio-d {
+  margin-top: 3px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.pio-enter-btn {
+  margin-top: 2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  color: #0a0a0a;
+  font-weight: 500;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  padding: 12px 26px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.pio-enter-btn:hover {
+  background: rgba(255, 255, 255, 0.85);
+  transform: translateY(-1px);
+}
+
+.pio-chevron {
+  font-size: 1rem;
+  transition: transform 0.2s ease;
+}
+
+.pio-enter-btn:hover .pio-chevron {
+  transform: translateX(3px);
+}
+
+@media (max-width: 700px) {
+  .pio-panel {
+    max-height: 44vh;
+  }
+}
+
+/* ==========================================================================
+   Orbit-style flower hero (page 1) — literal recreation, colors kept
+   as specified even though they don't match the rest of Parzi's palette.
+   ========================================================================== */
+.orbit-hero {
+  --ink: #ffffff;
+  --oh-surface: #161616;
+  --orb-reveal: cubic-bezier(0.16, 1, 0.3, 1);
+  --orb-soft: cubic-bezier(0.25, 0.8, 0.28, 1);
+  background: var(--oh-surface);
+  font-family: "Orbit Sans", Arial, Helvetica, sans-serif;
+  color: var(--ink);
+  padding: 0 !important;
+  contain: strict;
+}
+
+.oh-brand-mark {
+  position: absolute;
+  top: 2.141745dvh;
+  left: 3.854167vw;
+  width: clamp(34px, min(3.4375vw, 5.2dvh), 66px);
+  height: auto;
+  z-index: 4;
+}
+
+.oh-nav {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.oh-nav a {
+  position: absolute;
+  top: 3.426791dvh;
+  display: block;
+  color: var(--ink);
+  font-size: clamp(13px, min(1.302083vw, 2.05dvh), 25px);
+  text-decoration: none;
+  pointer-events: auto;
+  transform-origin: left center;
+}
+
+.oh-pill {
+  position: absolute;
+  top: 2.336449dvh;
+  right: 7.5vw;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  height: clamp(34px, 4.439252dvh, 57px);
+  padding: 0 1.2em;
+  background: #fff;
+  color: var(--oh-surface);
+  border-radius: 999px;
+  font-size: clamp(12px, 1.1vw, 15px);
+  letter-spacing: 0.026923em;
+}
+
+.oh-word {
+  position: absolute;
+  top: 11.565421dvh;
+  left: 4.348958vw;
+  z-index: 1;
+  margin: 0;
+  font-family: "Orbit Display", "Times New Roman", Times, serif;
+  font-weight: 400;
+  font-size: min(27.8125vw, 55dvh);
+  letter-spacing: 0.033708em;
+  line-height: 1;
+}
+
+.oh-word__mask {
+  display: block;
+  overflow: hidden;
+  padding-top: 0.3em;
+  margin-top: -0.3em;
+}
+
+.oh-word__inner {
+  display: block;
+}
+
+.oh-word__white {
+  color: var(--ink);
+}
+
+.oh-word__o {
+  display: inline-block;
+  transform: scaleX(1.0866);
+  margin-right: 0.042135em;
+}
+
+.oh-word__pink {
+  background: linear-gradient(180deg, #ffc5dc 0%, #fd86db 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.oh-flower {
+  position: absolute;
+  top: 14.749065dvh;
+  left: 57vw;               /* center of flower lands in the R–Z gap */
+  height: 106.109034dvh;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.oh-flower__sizer {
+  visibility: hidden;
+  height: 100%;
+  width: auto;
+  display: block;
+}
+
+.oh-flower__layer {
+  position: absolute;
+  inset: 0;
+}
+
+.oh-flower__layer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.oh-flower__layer--top {
+  mask-image: linear-gradient(#0000, #0000);
+  -webkit-mask-image: linear-gradient(#0000, #0000);
+}
+
+.oh-corner {
+  position: absolute;
+  z-index: 3;
+  bottom: 4.361371dvh;
+  color: #f7f7f7;
+  font-size: clamp(14px, min(1.40625vw, 2.102804dvh), 27px);
+  line-height: 1.3;
+}
+
+.oh-corner--left {
+  left: 3.177083vw;
+  transform: scaleX(1.073);
+  transform-origin: left bottom;
+}
+
+.oh-corner--right {
+  left: 78.28125vw;
+  transform: scaleX(1.058);
+  transform-origin: left bottom;
+}
+
+.oh-corner__inner {
+  display: inline-block;
+}
+
+/* Entrance choreography — plays once while .oh-pending is present.
+   Base rules above are the FINAL visible state; .oh-pending adds the
+   hidden starting point + the animation. Removing .oh-pending after
+   it finishes simply falls back to the (already-matching) final
+   state above — no snap, no replay, no dependency on "forwards"
+   surviving a class removal. */
+.oh-pending .oh-brand-mark {
+  opacity: 0;
+  transform: translateY(6px);
+  animation: oh-quiet 620ms var(--orb-soft) 100ms forwards;
+}
+
+.oh-pending .oh-nav a {
+  opacity: 0;
+  animation: oh-dim 550ms var(--orb-soft) forwards;
+}
+.oh-pending .oh-nav a:nth-child(1) { animation-delay: 180ms; }
+.oh-pending .oh-nav a:nth-child(2) { animation-delay: 225ms; }
+.oh-pending .oh-nav a:nth-child(3) { animation-delay: 270ms; }
+.oh-pending .oh-nav a:nth-child(4) { animation-delay: 315ms; }
+
+.oh-pending .oh-pill {
+  opacity: 0;
+  transform: translateY(6px);
+  animation: oh-quiet 620ms var(--orb-soft) 340ms forwards;
+}
+
+.oh-pending .oh-word__inner {
+  transform: translateY(118%);
+  animation: oh-word 1150ms var(--orb-reveal) 300ms forwards;
+}
+
+.oh-pending .oh-flower {
+  opacity: 0;
+  animation: oh-subject 1150ms var(--orb-reveal) 660ms forwards;
+}
+
+.oh-pending .oh-corner__inner {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: oh-corner 720ms var(--orb-soft) 980ms forwards;
+}
+
+@keyframes oh-word {
+  to { transform: translateY(0); }
+}
+
+@keyframes oh-subject {
+  from { opacity: 0; transform: translateX(-50%) translateY(3.4dvh); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes oh-corner {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes oh-quiet {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes oh-dim {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oh-pending {
+    animation: oh-dim 280ms ease forwards;
+  }
+  .oh-pending .oh-brand-mark,
+  .oh-pending .oh-nav a,
+  .oh-pending .oh-pill,
+  .oh-pending .oh-word__inner,
+  .oh-pending .oh-flower,
+  .oh-pending .oh-corner__inner {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 1200px), (orientation: portrait) {
+  .oh-word {
+    left: 0;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-aspect-ratio: 4/5) {
+  .oh-flower {
+    height: min(55dvh, 110vw);
+  }
+  .oh-word {
+    font-size: min(27.5vw, 18dvh);
+  }
+  .oh-corner {
+    max-width: 40vw;
+  }
+}
+
+@media (max-width: 700px) {
+  .oh-nav {
+    display: none;
+  }
+}
+
+/* ── Elements stripped from intro HTML — force-hidden defensively ── */
+.oh-nav,
+.oh-pill,
+.oh-brand-mark,
+.oh-corner,
+.pio-topbar,
+.pio-dots,
+.pio-scrolltag {
+  display: none !important;
+}
+
+/* ── "scroll to enter" hint at the bottom of the flower screen ── */
+.oh-scroll-hint {
+  position: absolute;
+  bottom: clamp(1.6rem, 3.5dvh, 3rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  font-family: var(--mono, monospace);
+  font-size: clamp(10px, 1.1vw, 13px);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+  white-space: nowrap;
+  animation: oh-hint-pulse 2.4s ease-in-out infinite;
+  transition: opacity 0.3s ease;
+}
+
+@keyframes oh-hint-pulse {
+  0%,  100% { opacity: 0.35; transform: translateX(-50%) translateY(0); }
+  50%        { opacity: 0.75; transform: translateX(-50%) translateY(5px); }
+}

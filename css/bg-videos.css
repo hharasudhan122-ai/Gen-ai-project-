@@ -1,0 +1,181 @@
+/* ==========================================================================
+   Parzi UI — Per-Tab Cinematic Background Videos & Alignment Tuning
+   ========================================================================== */
+
+/* Stacking context for sections so videos sit behind content */
+.view {
+  position: relative;
+  isolation: isolate;
+  background: transparent !important;
+  overflow: hidden !important;
+}
+
+.view-bgvideo-wrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: #04060c;
+}
+
+/* Foreground view content floats cleanly above video */
+.view > *:not(.view-bgvideo-wrap) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Scrollable containers inside views */
+#view-knowledge > *:not(.view-bgvideo-wrap),
+#view-ragspaces > *:not(.view-bgvideo-wrap),
+#view-workspace > *:not(.view-bgvideo-wrap),
+#view-promptlib > *:not(.view-bgvideo-wrap),
+#view-models > *:not(.view-bgvideo-wrap),
+#view-graph > *:not(.view-bgvideo-wrap),
+#view-tools > *:not(.view-bgvideo-wrap),
+#view-ledger > *:not(.view-bgvideo-wrap),
+#view-parzi > *:not(.view-bgvideo-wrap),
+#view-settings > *:not(.view-bgvideo-wrap) {
+  overflow-y: auto;
+  max-height: 100%;
+}
+
+/* 100% CLEAR UNBLURRED VIDEO */
+.view-bgvideo-wrap video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0;
+  filter: none !important;
+  -webkit-filter: none !important;
+  transition: opacity 0.5s ease;
+  will-change: opacity;
+}
+
+.view-bgvideo-wrap video.is-visible {
+  opacity: 1 !important;
+}
+
+/* Chat View: Dim video brightness and add dark protective backdrop for crisp text readability */
+#view-chat .view-bgvideo-wrap video {
+  opacity: 0.32 !important;
+  filter: brightness(0.65) contrast(1.15) !important;
+  -webkit-filter: brightness(0.65) contrast(1.15) !important;
+}
+
+#view-chat .view-bgvideo-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(4,7,14,0.4) 0%, rgba(4,7,14,0.85) 100%);
+  pointer-events: none;
+}
+
+/* ALIGN PARZI ASSISTANT & SETTINGS REACTOR VIDEO CENTER PERFECTLY BEHIND THE ORB */
+#view-parzi .view-bgvideo-wrap video,
+#view-settings .view-bgvideo-wrap video {
+  object-position: center 36% !important;
+}
+
+/* REMOVE OVERLAY SCRIM ENTIRELY FOR MAXIMUM VIDEO CLARITY */
+.view-bgvideo-overlay {
+  display: none !important;
+}
+
+/* Static fallback */
+.view-bgvideo-wrap.is-static {
+  background: #060a14;
+}
+
+/* ==========================================================================
+   EXACT-FIT REACTOR GLOW BENEATH PARZI'S ORB
+   ========================================================================== */
+.parzi-orb-zone {
+  padding: 1.5rem 0 0.8rem !important;
+}
+
+.parzi-orb-reactor-wrapper {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.parzi-orb-reactor-fit {
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%,
+    rgba(45, 224, 200, 0.55) 0%,
+    rgba(91, 141, 246, 0.35) 38%,
+    rgba(138, 90, 255, 0.2) 62%,
+    transparent 78%);
+  box-shadow:
+    0 0 55px rgba(45, 224, 200, 0.55),
+    0 0 95px rgba(91, 141, 246, 0.35),
+    inset 0 0 35px rgba(45, 224, 200, 0.4);
+  border: 1.5px solid rgba(45, 224, 200, 0.5);
+  animation: reactor-orb-spin 14s linear infinite, reactor-orb-pulse 3.4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.parzi-orb-reactor-fit::before {
+  content: '';
+  position: absolute;
+  inset: -16px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(45, 224, 200, 0.45);
+  animation: reactor-orb-spin-rev 20s linear infinite;
+}
+
+@keyframes reactor-orb-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes reactor-orb-spin-rev {
+  0% { transform: rotate(360deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes reactor-orb-pulse {
+  0%, 100% {
+    transform: scale(0.97);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+.parzi-orb {
+  position: relative;
+  z-index: 1;
+}
+
+/* Tab-switching entrance animation */
+.animate-tab-enter > * {
+  animation: tab-momentum-entrance 0.4s ease-out both;
+}
+
+@keyframes tab-momentum-entrance {
+  0% {
+    opacity: 0.3;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

@@ -1,0 +1,21 @@
+{
+  "name": "parzi-companion-server",
+  "version": "1.0.0",
+  "description": "Local companion server for Parzi — PC/phone app control, WhatsApp automation, and browser automation.",
+  "main": "companion-server.js",
+  "scripts": {
+    "start": "node companion-server.js",
+    "companion": "node companion-server.js",
+    "serve": "http-server . -p 8000 -c-1",
+    "divine": "npm --prefix \"divines eye/gev-build\" run dev",
+    "dev": "concurrently -n FRONTEND,COMPANION,DIVINE -c blue,green,cyan \"npm:serve\" \"npm:companion\" \"npm:divine\""
+  },
+  "dependencies": {
+    "animejs": "^4.5.0",
+    "chrome-remote-interface": "^0.34.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "http-server": "^14.1.1"
+  }
+}

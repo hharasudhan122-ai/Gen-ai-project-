@@ -1,0 +1,6 @@
+{
+  "_comment": "Add your contacts here as \"Name\": \"+countrycode number\". Used by calling and WhatsApp when saying a contact's name — this works regardless of whether your phone allows ADB to read its Contacts app directly. Delete the _comment line or leave it, it's ignored either way.",
+  "Dad": "+919487214161",
+  "Marshal": "+911234567890"
+  
+}
