@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Divine's Eye 12th Tab & Parzi Assistant Integration
  * -------------------------------------------------------------------
  * Ultra-compact, non-intrusive floating HUD with inline typing,
@@ -40,9 +40,18 @@ class DivineEyeManager {
     }
 
     // Ensure iframe is pointing to Divine's Eye
-    if (this.iframe && (!this.iframe.src || this.iframe.src === 'about:blank')) {
+    if (this.iframe) {
       const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      this.iframe.src = isLocalHost ? 'http://localhost:4173' : './divines-eye/index.html';
+      // On live web, always ensure it points to the bundled static build
+      if (!isLocalHost) {
+        if (!this.iframe.src || this.iframe.src === 'about:blank' || this.iframe.src.includes('localhost:4173')) {
+          this.iframe.src = './divines-eye/index.html';
+        }
+      } else {
+        if (!this.iframe.src || this.iframe.src === 'about:blank') {
+          this.iframe.src = './divines-eye/index.html';
+        }
+      }
     }
   }
 
