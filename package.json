@@ -4,11 +4,11 @@
   "description": "Local companion server for Parzi — PC/phone app control, WhatsApp automation, and browser automation.",
   "main": "companion-server.js",
   "scripts": {
+    "build": "echo 'Static build ready'",
     "start": "node companion-server.js",
     "companion": "node companion-server.js",
     "serve": "http-server . -p 8000 -c-1",
-    "divine": "npm --prefix \"divines eye/gev-build\" run dev",
-    "dev": "concurrently -n FRONTEND,COMPANION,DIVINE -c blue,green,cyan \"npm:serve\" \"npm:companion\" \"npm:divine\""
+    "dev": "concurrently -n FRONTEND,COMPANION -c blue,green \"npm:serve\" \"npm:companion\""
   },
   "dependencies": {
     "animejs": "^4.5.0",

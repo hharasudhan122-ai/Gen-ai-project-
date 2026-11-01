@@ -1,6 +1,7 @@
 {
   "version": 2,
   "cleanUrls": true,
+  "buildCommand": "npm run build",
   "headers": [
     {
       "source": "/api/(.*)",
@@ -15,6 +16,11 @@
     { "source": "/api/celestrak/:group", "destination": "https://celestrak.org/NORAD/elements/gp.php?GROUP=:group&FORMAT=tle" },
     { "source": "/api/adsblol/mil", "destination": "https://api.adsb.lol/v2/mil" },
     { "source": "/api/adsblol/:path*", "destination": "https://api.adsb.lol/v2/:path*" },
+    { "source": "/api/adsbdb/type/:hex", "destination": "https://api.adsbdb.com/v0/aircraft/:hex" },
+    { "source": "/api/adsbdb/route/:cs", "destination": "https://api.adsbdb.com/v0/callsign/:cs" },
+    { "source": "/api/adsbdb/:path*", "destination": "https://api.adsbdb.com/v0/:path*" },
+    { "source": "/api/tomtom/status", "destination": "/api/tomtom-status" },
+    { "source": "/api/tomtom/flow/:z/:x/:y.pbf", "destination": "/api/tomtom-flow?z=:z&x=:x&y=:y" },
     { "source": "/api/launches", "destination": "https://ll.thespacedevs.com/2.2.0/launch/upcoming/?limit=10" },
     { "source": "/cesium/:path*", "destination": "/divines-eye/cesium/:path*" },
     { "source": "/models/:path*", "destination": "/divines-eye/models/:path*" },
