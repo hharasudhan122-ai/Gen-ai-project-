@@ -1,6 +1,7 @@
 /**
  * Universal Overpass API Proxy for Divine's Eye Traffic on Vercel
- * Forwards road vector geometry queries to public Overpass mirrors with proper CORS headers.
+ * Forwards road vector geometry queries to public Overpass mirrors.
+ * Reads raw POST body since Vercel serverless does NOT auto-parse form bodies.
  */
 
 module.exports = async (req, res) => {
@@ -8,31 +9,40 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', '*');
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+  if (req.method === 'OPTIONS') return res.status(200).end();
+
+  // Read raw body from stream (Vercel does NOT auto-parse application/x-www-form-urlencoded)
+  let rawBody = '';
+  if (req.method === 'POST') {
+    rawBody = await new Promise((resolve, reject) => {
+      let data = '';
+      req.on('data', chunk => { data += chunk.toString(); });
+      req.on('end', () => resolve(data));
+      req.on('error', reject);
+    });
+  }
+
+  // Extract the Overpass QL query — body is "data=<urlencoded query>"
+  let query = '';
+  if (rawBody) {
+    const params = new URLSearchParams(rawBody);
+    query = params.get('data') || rawBody;
+  } else if (req.method === 'GET') {
+    const qs = new URLSearchParams((req.url || '').split('?')[1] || '');
+    query = qs.get('data') || '';
+  }
+
+  if (!query) {
+    return res.status(400).json({ error: 'No Overpass query provided' });
   }
 
   const mirrors = [
     'https://overpass-api.de/api/interpreter',
     'https://overpass.kumi.systems/api/interpreter',
     'https://overpass.private.coffee/api/interpreter',
-    'https://lz4.overpass-api.de/api/interpreter'
+    'https://lz4.overpass-api.de/api/interpreter',
+    'https://overpass.openstreetmap.fr/api/interpreter'
   ];
-
-  let query = '';
-  if (req.method === 'POST') {
-    if (typeof req.body === 'string') {
-      query = req.body;
-    } else if (req.body && typeof req.body === 'object') {
-      query = req.body.data || Object.keys(req.body).map(k => `${k}=${encodeURIComponent(req.body[k])}`).join('&');
-    }
-  } else if (req.method === 'GET') {
-    query = req.query.data || '';
-  }
-
-  if (query && !query.startsWith('data=')) {
-    query = 'data=' + encodeURIComponent(query);
-  }
 
   for (const mirror of mirrors) {
     try {
@@ -40,26 +50,27 @@ module.exports = async (req, res) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'User-Agent': 'gods-eye-view-traffic/1.0 (+https://github.com/hharasudhan122-ai/Gen-ai-project-)',
+          'User-Agent': 'DivinEye-Traffic/1.0 (+https://github.com/hharasudhan122-ai/Gen-ai-project-)',
           'Accept': 'application/json, text/plain, */*'
         },
-        body: query,
-        signal: AbortSignal.timeout(12000)
+        body: `data=${encodeURIComponent(query)}`,
+        signal: AbortSignal.timeout(15000)
       });
 
       if (upstream.ok) {
         const text = await upstream.text();
         res.setHeader('Content-Type', 'application/json; charset=utf-8');
         res.setHeader('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate=604800');
+        res.setHeader('X-Overpass-Upstream', mirror);
         return res.status(200).send(text);
       }
-      console.warn(`Overpass mirror ${mirror} returned ${upstream.status}`);
+      console.warn(`[Overpass] Mirror ${mirror} returned ${upstream.status}`);
     } catch (err) {
-      console.warn(`Overpass mirror ${mirror} error:`, err.message);
+      console.warn(`[Overpass] Mirror ${mirror} error:`, err.message);
     }
   }
 
-  // Fallback: return valid OSM envelope so traffic engine does not crash
+  // All mirrors failed — return valid empty OSM envelope so traffic engine doesn't crash
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   return res.status(200).json({ version: 0.6, generator: 'Overpass fallback', elements: [] });
 };
