@@ -344,3 +344,28 @@
 .divine-response-sources a:hover {
   text-decoration: underline;
 }
+
+/* ==========================================================================
+   Mobile Viewport Optimization for Parzi Floating HUD
+   Leaves bottom docks (Visual Presets, Location) completely accessible
+   ========================================================================== */
+@media (max-width: 768px) {
+  .divine-parzi-hud {
+    bottom: 10px !important;
+    right: 10px !important;
+    left: auto !important;
+    transform: none !important;
+  }
+  .divine-hud-bar {
+    height: 38px;
+    padding: 0 8px 0 2px;
+  }
+  .divine-input-wrap input {
+    width: 130px;
+    font-size: 0.74rem;
+  }
+  .divine-target-tag {
+    max-width: 90px;
+    font-size: 0.65rem;
+  }
+}
