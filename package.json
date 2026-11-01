@@ -4,7 +4,6 @@
   "description": "Local companion server for Parzi — PC/phone app control, WhatsApp automation, and browser automation.",
   "main": "companion-server.js",
   "scripts": {
-    "build": "echo 'Static build ready'",
     "start": "node companion-server.js",
     "companion": "node companion-server.js",
     "serve": "http-server . -p 8000 -c-1",
