@@ -4435,8 +4435,17 @@
 
       <!-- DIVINE'S EYE 12TH TAB VIEW -->
       <section id="view-divineeye" class="view divine-view" style="padding:0;position:relative;width:100%;height:100%;overflow:hidden;background:#04070c;">
-        <!-- Divine Eye Embedded Frame -->
-        <iframe id="divineEyeFrame" src="/divines-eye/index.html" style="width:100%;height:100%;border:none;display:block;" allow="geolocation; microphone; camera; fullscreen"></iframe>
+        <!-- Divine Eye Embedded Frame (Port 4173 on local, /divines-eye/ on live web) -->
+        <iframe id="divineEyeFrame" src="about:blank" style="width:100%;height:100%;border:none;display:block;" allow="geolocation; microphone; camera; fullscreen"></iframe>
+        <script>
+          (function() {
+            var fr = document.getElementById('divineEyeFrame');
+            if (fr) {
+              var isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+              fr.src = isLocal ? 'http://localhost:4173' : '/divines-eye/index.html';
+            }
+          })();
+        </script>
 
         <!-- BOTTOM-CENTER PARZI HUD WIDGET (Compact, Non-Intrusive, Inline Typing) -->
         <div id="divineParziHud" class="divine-parzi-hud">

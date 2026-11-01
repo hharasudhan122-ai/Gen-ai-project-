@@ -33,10 +33,17 @@ class DivineEyeManager {
     if (!this.iframe) this.iframe = document.getElementById('divineEyeFrame');
     if (this.iframe) {
       const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      if (!isLocalHost || !this.iframe.src || this.iframe.src.includes('localhost:4173') || this.iframe.src === 'about:blank') {
-        const target = '/divines-eye/index.html';
-        if (!this.iframe.src || !this.iframe.src.endsWith(target)) {
-          this.iframe.src = target;
+      if (isLocalHost) {
+        // LOCAL MODE: Must ALWAYS connect to local Vite preview on port 4173
+        const localTarget = 'http://localhost:4173';
+        if (!this.iframe.src || this.iframe.src === 'about:blank' || !this.iframe.src.includes('localhost:4173')) {
+          this.iframe.src = localTarget;
+        }
+      } else {
+        // LIVE WEB MODE (Vercel): Connects to the bundled static build
+        const liveTarget = '/divines-eye/index.html';
+        if (!this.iframe.src || this.iframe.src === 'about:blank' || this.iframe.src.includes('localhost:4173')) {
+          this.iframe.src = liveTarget;
         }
       }
     }
