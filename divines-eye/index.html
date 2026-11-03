@@ -4,6 +4,19 @@
 <head>
   <link rel="stylesheet" href="./cesium/Widgets/widgets.css">
   <script src="./cesium/Cesium.js"></script>
+  <script>
+    (function() {
+      if (window.Cesium && window.Cesium.Viewer) {
+        var _origViewer = window.Cesium.Viewer;
+        window.Cesium.Viewer = function(container, options) {
+          var v = new _origViewer(container, options);
+          window.gevViewer = v;
+          if (window.__onViewerReady) window.__onViewerReady(v);
+          return v;
+        };
+      }
+    })();
+  </script>
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -1163,6 +1176,7 @@
     </div>
   </div>
 
+  <script src="./blackzone.js"></script>
 </body>
 
 </html>
