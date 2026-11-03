@@ -9,10 +9,36 @@
       if (window.Cesium && window.Cesium.Viewer) {
         var _origViewer = window.Cesium.Viewer;
         window.Cesium.Viewer = function (container, options) {
-          var v = new _origViewer(container, options);
-          window.gevViewer = v;
-          if (window.__onViewerReady) window.__onViewerReady(v);
-          return v;
+          options = options || {};
+          options.contextOptions = options.contextOptions || {};
+          options.contextOptions.webgl = Object.assign({
+            failIfMajorPerformanceCaveat: false,
+            powerPreference: 'default'
+          }, options.contextOptions.webgl || {});
+
+          try {
+            var v = new _origViewer(container, options);
+            window.gevViewer = v;
+            if (window.__onViewerReady) window.__onViewerReady(v);
+            return v;
+          } catch (err) {
+            console.warn('[Cesium.Viewer] High-spec WebGL init failed, retrying with resilient fallback:', err);
+            var safeOpts = Object.assign({}, options, {
+              msaaSamples: 1,
+              contextOptions: {
+                webgl: {
+                  failIfMajorPerformanceCaveat: false,
+                  powerPreference: 'default',
+                  preserveDrawingBuffer: false,
+                  alpha: false
+                }
+              }
+            });
+            var v2 = new _origViewer(container, safeOpts);
+            window.gevViewer = v2;
+            if (window.__onViewerReady) window.__onViewerReady(v2);
+            return v2;
+          }
         };
       }
     })();
