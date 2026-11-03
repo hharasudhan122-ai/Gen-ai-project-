@@ -1574,56 +1574,90 @@
         return row;
       }
 
-      function mountBlackZoneUI() {
-        const list = document.getElementById('data-toggles');
-        if (!list) {
-          setTimeout(mountBlackZoneUI, 300);
-          return;
-        }
+      let _bzElements = null;
 
-        if (document.getElementById('bz-divider')) return;
-
+      function getOrCreateBzElements() {
+        if (_bzElements) return _bzElements;
         injectStyles();
 
         const divider = document.createElement('div');
         divider.id = 'bz-divider';
         divider.className = 'blackzone-divider';
         divider.innerHTML = `
-      <div class="bz-line"></div>
-      <span class="bz-title">▲ BLACK ZONE (TACTICAL INTEL)</span>
-      <div class="bz-line"></div>
-    `;
-        list.appendChild(divider);
+          <div class="bz-line"></div>
+          <span class="bz-title">&#x25B2; BLACK ZONE (TACTICAL INTEL)</span>
+          <div class="bz-line"></div>
+        `;
 
-        const barsRow = createToggleRow('bz-bars', '🍸', 'Nightlife & Bars');
-        list.appendChild(barsRow);
+        const barsRow = createToggleRow('bz-bars', '&#x1F378;', 'Nightlife & Bars');
+        const armoryRow = createToggleRow('bz-armory', '&#x1F3AF;', 'Tactical & Armory');
+        const threatRow = createToggleRow('bz-threat', '&#x2623;&#xFE0F;', 'High-Threat Zones');
 
-        const armoryRow = createToggleRow('bz-armory', '🎯', 'Tactical & Armory');
-        list.appendChild(armoryRow);
+        _bzElements = [divider, barsRow, armoryRow, threatRow];
+        return _bzElements;
+      }
 
-        const threatRow = createToggleRow('bz-threat', '☣️', 'High-Threat Zones');
-        list.appendChild(threatRow);
+      function ensureMounted() {
+        const list = document.getElementById('data-toggles');
+        if (!list) return;
+        if (!list.contains(document.getElementById('bz-divider'))) {
+          const els = getOrCreateBzElements();
+          els.forEach(el => list.appendChild(el));
+        }
+      }
 
-        const tip = document.createElement('div');
-        tip.id = 'bz-tooltip';
-        tip.className = 'bz-tooltip';
-        document.body.appendChild(tip);
+      function setupBlackZoneObserver() {
+        const list = document.getElementById('data-toggles');
+        if (!list) {
+          setTimeout(setupBlackZoneObserver, 150);
+          return;
+        }
+
+        ensureMounted();
+
+        // Observe #data-toggles for DOM wipes (when Divine's Eye re-renders layer counts)
+        const obs = new MutationObserver(() => {
+          ensureMounted();
+        });
+        obs.observe(list, { childList: true });
+
+        // Safety interval keeps Black Zone pinned at the bottom of data-toggles
+        setInterval(ensureMounted, 1000);
+      }
+
+      function mountBlackZoneUI() {
+        setupBlackZoneObserver();
+
+        if (!document.getElementById('bz-tooltip')) {
+          const tip = document.createElement('div');
+          tip.id = 'bz-tooltip';
+          tip.className = 'bz-tooltip';
+          document.body.appendChild(tip);
+        }
 
         if (_viewer?.scene?.canvas) {
           const handler = new Cesium.ScreenSpaceEventHandler(_viewer.scene.canvas);
           handler.setInputAction((movement) => {
             try {
               const picked = _viewer.scene.pick(movement.endPosition);
-              if (picked?.primitive?.id && typeof picked.primitive.id === 'object') {
+              const tip = document.getElementById('bz-tooltip');
+              if (tip && picked?.primitive?.id && typeof picked.primitive.id === 'object') {
                 const data = picked.primitive.id;
                 tip.style.display = 'block';
-                tip.innerHTML = `<strong>${data.name}</strong><br><small style="color:#aaa">${data.kind.toUpperCase()} // LAT:${data.lat?.toFixed(3)} LON:${data.lon?.toFixed(3)}</small>`;
-              } else {
+                tip.innerHTML = `<strong>${data.name}</strong><br><small style="color:#aaa">${(data.kind || '').toUpperCase()} // LAT:${data.lat?.toFixed(3)} LON:${data.lon?.toFixed(3)}</small>`;
+              } else if (tip) {
                 tip.style.display = 'none';
               }
             } catch (e) { }
           }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
         }
+      }
+
+      // Start UI mounting immediately so Black Zone is visible right away
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', mountBlackZoneUI);
+      } else {
+        mountBlackZoneUI();
       }
 
       function start(viewer) {
