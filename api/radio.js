@@ -1,14 +1,74 @@
 /**
  * Radio Browser Proxy for Divine's Eye on Vercel
- * Proxies /api/radio/stations to radio-browser.info DNS-round-robin API.
- * Endpoint used by bundle: GET /api/radio/stations?near=lat,lon&limit=N&...
+ * Upstream: radio-browser.info mirrors
+ * Returns schema strictly validated by Divine's Eye frontend (UW validator).
  */
 
-const RADIO_HOSTS = [
+const RADIO_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+const RADIO_MIRRORS = [
   'https://de1.api.radio-browser.info',
   'https://nl1.api.radio-browser.info',
   'https://at1.api.radio-browser.info'
 ];
+
+function cleanText(v, maxLen = 140) {
+  if (typeof v !== 'string') return '';
+  return v.replace(/[\u0000-\u001f\u007f]/g, '').replace(/\s{2,}/g, ' ').trim().slice(0, maxLen);
+}
+
+function normalizeStation(raw) {
+  const id = (raw?.stationuuid || '').toLowerCase().trim();
+  if (!RADIO_UUID_RE.test(id)) return null;
+
+  const lat = Number(raw?.geo_lat);
+  const lon = Number(raw?.geo_long);
+  if (!Number.isFinite(lat) || lat < -90 || lat > 90) return null;
+  if (!Number.isFinite(lon) || lon < -180 || lon > 180) return null;
+
+  const name = cleanText(raw?.name, 140);
+  if (!name) return null;
+
+  const streamUrl = String(raw?.url_resolved || raw?.url || '').trim();
+  if (!streamUrl.startsWith('https://')) return null;
+
+  const codec = cleanText(raw?.codec, 16).toUpperCase();
+  if (!/^(?:MP3|AAC(?:\+|-LC|-HE)?|HE-AAC)$/i.test(codec)) return null;
+
+  const tags = String(raw?.tags || '')
+    .split(',')
+    .map(t => cleanText(t, 40).toLowerCase().replace(/[_-]+/g, ' ').trim())
+    .filter(Boolean)
+    .slice(0, 15);
+
+  const languages = String(raw?.language || '')
+    .split(',')
+    .map(l => cleanText(l, 30).toLowerCase().trim())
+    .filter(Boolean)
+    .slice(0, 5);
+
+  return {
+    id,
+    name,
+    lat,
+    lon,
+    streamUrl,
+    homepage: cleanText(raw?.homepage, 180),
+    tags,
+    languages,
+    state: cleanText(raw?.state, 60),
+    country: cleanText(raw?.country, 60),
+    countryCode: cleanText(raw?.countrycode, 4).toUpperCase(),
+    metadataTrust: 'untrusted',
+    codec,
+    bitrate: Number.isFinite(Number(raw?.bitrate)) ? Number(raw?.bitrate) : 0,
+    clickCount: Number.isFinite(Number(raw?.clickcount)) ? Number(raw?.clickcount) : 0
+  };
+}
+
+let _cache = null;
+let _cacheTime = 0;
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -16,53 +76,64 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Headers', '*');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const url = String(req.url || '');
-  const qs = url.split('?')[1] || '';
-  const params = new URLSearchParams(qs);
-
-  // Build the radio-browser.info query — bycoordinates or bycountry etc.
-  // Bundle calls /api/radio/stations with query params forwarded
-  const lat = params.get('lat') || params.get('latitude');
-  const lon = params.get('lon') || params.get('longitude') || params.get('lng');
-  const limit = params.get('limit') || '50';
-  const country = params.get('country') || '';
-  const name = params.get('name') || '';
-  const tag = params.get('tag') || '';
-
-  let upstreamPath;
-  if (lat && lon) {
-    // nearest stations by geo
-    upstreamPath = `/json/stations/bycoordinates?lat=${lat}&lon=${lon}&limit=${limit}&hidebroken=true&order=votes`;
-  } else if (country) {
-    upstreamPath = `/json/stations/bycountry/${encodeURIComponent(country)}?limit=${limit}&hidebroken=true&order=votes`;
-  } else if (name) {
-    upstreamPath = `/json/stations/byname/${encodeURIComponent(name)}?limit=${limit}&hidebroken=true`;
-  } else if (tag) {
-    upstreamPath = `/json/stations/bytag/${encodeURIComponent(tag)}?limit=${limit}&hidebroken=true&order=votes`;
-  } else {
-    // fallback: top voted stations
-    upstreamPath = `/json/stations?limit=${limit}&hidebroken=true&order=votes`;
+  const now = Date.now();
+  if (_cache && (now - _cacheTime < CACHE_TTL_MS)) {
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=7200');
+    return res.status(200).json(_cache);
   }
 
-  for (const host of RADIO_HOSTS) {
+  // Fetch stations with geo info, https only, valid audio codec
+  const params = new URLSearchParams({
+    has_geo_info: 'true',
+    is_https: 'true',
+    hidebroken: 'true',
+    order: 'clickcount',
+    reverse: 'true',
+    limit: '600'
+  });
+
+  let rawList = [];
+  for (const mirror of RADIO_MIRRORS) {
     try {
-      const r = await fetch(`${host}${upstreamPath}`, {
-        headers: {
-          'User-Agent': 'DivinEye/1.0 (+https://genaia-gilt.vercel.app)',
-          'Accept': 'application/json'
-        },
-        signal: AbortSignal.timeout(8000)
+      const upstream = `${mirror}/json/stations/search?${params.toString()}`;
+      const r = await fetch(upstream, {
+        headers: { 'Accept': 'application/json', 'User-Agent': 'DivinEye/1.0' },
+        signal: AbortSignal.timeout(10000)
       });
       if (r.ok) {
-        const data = await r.json();
-        res.setHeader('Content-Type', 'application/json');
-        res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
-        return res.status(200).json(data);
+        rawList = await r.json();
+        if (Array.isArray(rawList) && rawList.length > 0) break;
       }
     } catch (err) {
-      console.warn(`[Radio] Host ${host} error:`, err.message);
+      console.warn(`[Radio] mirror ${mirror} error:`, err?.message || err);
     }
   }
 
-  return res.status(503).json({ error: 'Radio directory temporarily unavailable' });
+  const validStations = Array.isArray(rawList)
+    ? rawList.map(normalizeStation).filter(Boolean)
+    : [];
+
+  if (validStations.length === 0 && _cache) {
+    return res.status(200).json(_cache);
+  }
+
+  const updatedAt = new Date(now).toISOString();
+  const payload = {
+    stations: validStations,
+    updatedAt,
+    stale: false,
+    degraded: false,
+    degradedReason: null,
+    coverage: null,
+    acceptedGeneration: 1,
+    catalogInstance: 'divine-eye-radio-v2'
+  };
+
+  _cache = payload;
+  _cacheTime = now;
+
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=7200');
+  return res.status(200).json(payload);
 };

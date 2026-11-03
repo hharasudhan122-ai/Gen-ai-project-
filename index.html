@@ -6920,6 +6920,15 @@ No explanations outside the JSON.${waContext}${browserContext}`;
           if (spaceInstructions) sysPrompt += `\n\nCustom Instructions: ${spaceInstructions}`;
           const doSearch = this.state.isWebSearch || text.startsWith('web:') || (this.settings.autoWebSearch && /\b(what|who|when|where|latest|news|current|price|weather)\b/i.test(text));
           if (doSearch) { const q = text.startsWith('web:') ? text.substring(4).trim() : text; try { const results = await this.performWebSearch(q); context += `\nWeb Search Results for "${q}":\n` + results.map(r => r.snippet).join('\n---\n'); webSources = results; } catch (e) { } }
+          // Real-time Ledger context injection for questions about attendance, check-in, presence, roster, desks, seating
+          if (this.ledger && /\b(ledger|attendance|present|absent|check\s*in|checked\s*in|checkin|checkout|check\s*out|roster|staff|employee|who.*office|who.*desk|who.*seat|meeting)\b/i.test(text)) {
+            try {
+              const lRes = this.ledger.queryLedger(text);
+              if (lRes && lRes.answer) {
+                sysPrompt += `\n\n[Live Company Ledger & Attendance Records]\n${lRes.answer}\n(Use this factual ledger data to answer the user's question accurately. State facts directly from this data without apologizing or claiming you lack access.)`;
+              }
+            } catch (le) { console.warn('[Chat:Ledger] query error:', le); }
+          }
           // ── RAG Retrieval ──────────────────────────────────────────────────────
           const doRAG = this.state.isRAGEnabled || (this.currentChat.spaceId && spaceFilter?.length > 0) || text.includes('#');
           if (doRAG) {
