@@ -37,11 +37,13 @@ module.exports = async (req, res) => {
   }
 
   const mirrors = [
-    'https://overpass-api.de/api/interpreter',
     'https://overpass.kumi.systems/api/interpreter',
     'https://overpass.private.coffee/api/interpreter',
+    'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
+    'https://overpass.openstreetmap.fr/api/interpreter',
     'https://lz4.overpass-api.de/api/interpreter',
-    'https://overpass.openstreetmap.fr/api/interpreter'
+    'https://overpass-api.de/api/interpreter',
+    'https://overpass.nchc.org.tw/api/interpreter'
   ];
 
   for (const mirror of mirrors) {
@@ -50,11 +52,12 @@ module.exports = async (req, res) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'User-Agent': 'DivinEye-Traffic/1.0 (+https://github.com/hharasudhan122-ai/Gen-ai-project-)',
-          'Accept': 'application/json, text/plain, */*'
+          'User-Agent': 'Mozilla/5.0 (compatible; DivinEye/1.0; +https://genaia-gilt.vercel.app)',
+          'Accept': 'application/json, text/plain, */*',
+          'Referer': 'https://genaia-gilt.vercel.app/'
         },
         body: `data=${encodeURIComponent(query)}`,
-        signal: AbortSignal.timeout(15000)
+        signal: AbortSignal.timeout(25000)
       });
 
       if (upstream.ok) {
@@ -70,7 +73,7 @@ module.exports = async (req, res) => {
     }
   }
 
-  // All mirrors failed — return valid empty OSM envelope so traffic engine doesn't crash
+  // All mirrors failed — return 502 so client fallback mirrors can try
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
-  return res.status(200).json({ version: 0.6, generator: 'Overpass fallback', elements: [] });
+  return res.status(502).json({ error: 'All upstream Overpass mirrors failed or timed out', elements: [] });
 };

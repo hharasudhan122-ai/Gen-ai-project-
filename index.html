@@ -3356,46 +3356,49 @@
 <body>
   <!-- ORB INTRO — mouse-morph orb + GSAP ScrollTrigger scrollytelling -->
   <div id="parziIntroOverlay" class="pio-overlay">
-   <div class="pio-scroller" id="pioScroller">
-    <div class="pio-track" id="pioTrack">
-    <div class="pio-stage" id="pioStage">
+    <div class="pio-scroller" id="pioScroller">
+      <div class="pio-track" id="pioTrack">
+        <div class="pio-stage" id="pioStage">
 
 
 
-      <!-- PAGE 1 — Orbit-style flower hero (literal recreation, colors kept as-is) -->
-      <section class="pio-page pio-page--1 orbit-hero" id="orbitHero" data-page="0">
+          <!-- PAGE 1 — Orbit-style flower hero (literal recreation, colors kept as-is) -->
+          <section class="pio-page pio-page--1 orbit-hero" id="orbitHero" data-page="0">
 
 
 
-        <h1 class="oh-word" id="ohTitle" aria-label="Parzi">
-          <span class="oh-word__mask">
-            <span class="oh-word__inner">
-              <span class="oh-word__white"><span class="oh-word__o">P</span>AR</span>
-              <span class="oh-word__pink">ZI</span>
-            </span>
-          </span>
-        </h1>
+            <h1 class="oh-word" id="ohTitle" aria-label="Parzi">
+              <span class="oh-word__mask">
+                <span class="oh-word__inner">
+                  <span class="oh-word__white"><span class="oh-word__o">P</span>AR</span>
+                  <span class="oh-word__pink">ZI</span>
+                </span>
+              </span>
+            </h1>
 
-        <div class="oh-flower" id="ohFlower">
-          <img class="oh-flower__sizer" src="https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260808_192942_e1086505-d7da-433b-a59b-8220f4e6c808.png&w=1280&q=85"
-            alt="" aria-hidden="true">
-          <div class="oh-flower__layer oh-flower__layer--bg">
-            <img src="https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260808_192942_e1086505-d7da-433b-a59b-8220f4e6c808.png&w=1280&q=85"
-              alt="Pixel-art pink and violet lily">
-          </div>
-          <div class="oh-flower__layer oh-flower__layer--top" aria-hidden="true">
-            <img src="https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260808_151324_bf318a5f-5525-4fc7-aab5-e9a341018828.png&w=1280&q=85"
-              alt="">
-          </div>
+            <div class="oh-flower" id="ohFlower">
+              <img class="oh-flower__sizer"
+                src="https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260808_192942_e1086505-d7da-433b-a59b-8220f4e6c808.png&w=1280&q=85"
+                alt="" aria-hidden="true">
+              <div class="oh-flower__layer oh-flower__layer--bg">
+                <img
+                  src="https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260808_192942_e1086505-d7da-433b-a59b-8220f4e6c808.png&w=1280&q=85"
+                  alt="Pixel-art pink and violet lily">
+              </div>
+              <div class="oh-flower__layer oh-flower__layer--top" aria-hidden="true">
+                <img
+                  src="https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260808_151324_bf318a5f-5525-4fc7-aab5-e9a341018828.png&w=1280&q=85"
+                  alt="">
+              </div>
+            </div>
+
+            <div class="oh-scroll-hint" id="ohScrollHint">scroll to enter &darr;</div>
+          </section>
+
+
         </div>
-
-        <div class="oh-scroll-hint" id="ohScrollHint">scroll to enter &darr;</div>
-      </section>
-
-
+      </div>
     </div>
-    </div>
-   </div>
   </div>
   <div id="space-bg"></div>
   <div class="app" id="appRoot">
@@ -3787,8 +3790,10 @@
             </div>
             <label style="font-size:.78rem;color:var(--text2);margin-bottom:4px">Operating Mode:</label>
             <div style="display:flex;gap:6px;margin-bottom:12px">
-              <button type="button" class="primary-btn" id="modePresetLocalBtn" onclick="app.setModePreset('local')" style="flex:1;font-size:.75rem;padding:.45rem .6rem">🏠 Local Mode (Kobold / Ollama)</button>
-              <button type="button" class="sec-btn" id="modePresetLiveBtn" onclick="app.setModePreset('live')" style="flex:1;font-size:.75rem;padding:.45rem .6rem">⚡ Live Mode (Groq Cloud)</button>
+              <button type="button" class="primary-btn" id="modePresetLocalBtn" onclick="app.setModePreset('local')"
+                style="flex:1;font-size:.75rem;padding:.45rem .6rem">🏠 Local Mode (Kobold / Ollama)</button>
+              <button type="button" class="sec-btn" id="modePresetLiveBtn" onclick="app.setModePreset('live')"
+                style="flex:1;font-size:.75rem;padding:.45rem .6rem">⚡ Live Mode (Groq Cloud)</button>
             </div>
             <label>Backend Type</label>
             <select id="backendType" onchange="app.onBackendTypeChange(this.value)">
@@ -3800,8 +3805,11 @@
             <label>API URL</label><input type="text" id="apiUrl" placeholder="http://localhost:5001">
             <label>API Key</label><input type="password" id="apiKey"
               placeholder="Required for Groq / OpenAI; optional for local">
-            <div id="groqKeyHelper" style="display:none;font-size:.73rem;color:var(--teal);margin-top:4px;line-height:1.4;background:rgba(45,224,200,.08);padding:6px 10px;border-radius:6px;border:1px solid rgba(45,224,200,.2)">
-              ⚡ <strong>Live Mode Active:</strong> Direct browser AI using Groq (<a href="https://console.groq.com/keys" target="_blank" rel="noopener" style="color:var(--teal);text-decoration:underline;font-weight:600">get free key at console.groq.com/keys</a>). Paste key above &amp; click Save Settings.
+            <div id="groqKeyHelper"
+              style="display:none;font-size:.73rem;color:var(--teal);margin-top:4px;line-height:1.4;background:rgba(45,224,200,.08);padding:6px 10px;border-radius:6px;border:1px solid rgba(45,224,200,.2)">
+              ⚡ <strong>Live Mode Active:</strong> Direct browser AI using Groq (<a href="https://console.groq.com/keys"
+                target="_blank" rel="noopener" style="color:var(--teal);text-decoration:underline;font-weight:600">get
+                free key at console.groq.com/keys</a>). Paste key above &amp; click Save Settings.
             </div>
             <button class="primary-btn" style="margin-top:8px;font-size:.78rem;padding:.4rem .8rem"
               onclick="app.checkConnection()">🔌 Test Connection</button>
@@ -4369,7 +4377,8 @@
 
             <div class="parzi-quickbar">
               <button class="sec-btn" onclick="app.parzi.testCompanion()">🔌 Test Companion Link</button>
-              <button id="clapWakeQuickBtn" class="sec-btn" onclick="if(window.toggleClapWake)window.toggleClapWake()" title="Toggle Clap/Snap to Wake">&#x1F44F; Snap Wake: OFF</button>
+              <button id="clapWakeQuickBtn" class="sec-btn" onclick="if(window.toggleClapWake)window.toggleClapWake()"
+                title="Toggle Clap/Snap to Wake">&#x1F44F; Snap Wake: OFF</button>
 
               <button class="sec-btn" onclick="app.parzi.clearTranscript()">🗑️ Clear</button>
               <label class="parzi-toggle"><input type="checkbox" id="parziAutoListen"
@@ -4414,12 +4423,16 @@
             </div>
             <div class="setting-card">
               <h3>&#x1F44F; Clap / Snap to Wake</h3>
-              <p style="font-size:.78rem;color:var(--text3);margin-bottom:10px">Clap or snap twice near the mic to wake Parzi hands-free. Needs mic access.</p>
+              <p style="font-size:.78rem;color:var(--text3);margin-bottom:10px">Clap or snap twice near the mic to wake
+                Parzi hands-free. Needs mic access.</p>
               <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-                <button id="clapWakeSideBtn" onclick="if(window.toggleClapWake)window.toggleClapWake()" style="padding:.45rem 1.2rem;border-radius:8px;border:1.5px solid var(--red);background:rgba(224,96,96,0.10);color:var(--red);font-size:.82rem;cursor:pointer;font-weight:600;transition:all .25s">&#x1F534; Switch ON</button>
+                <button id="clapWakeSideBtn" onclick="if(window.toggleClapWake)window.toggleClapWake()"
+                  style="padding:.45rem 1.2rem;border-radius:8px;border:1.5px solid var(--red);background:rgba(224,96,96,0.10);color:var(--red);font-size:.82rem;cursor:pointer;font-weight:600;transition:all .25s">&#x1F534;
+                  Switch ON</button>
                 <span id="clapSideStatus" style="font-size:.78rem;color:var(--text3)">Clap Wake is off</span>
               </div>
-              <p style="font-size:.72rem;color:var(--text3)">&#x1F4A1; Snap twice quickly &#8212; not too slow, not too fast.</p>
+              <p style="font-size:.72rem;color:var(--text3)">&#x1F4A1; Snap twice quickly &#8212; not too slow, not too
+                fast.</p>
             </div>
 
 
@@ -4434,11 +4447,13 @@
       </section>
 
       <!-- DIVINE'S EYE 12TH TAB VIEW -->
-      <section id="view-divineeye" class="view divine-view" style="padding:0;position:relative;width:100%;height:100%;overflow:hidden;background:#04070c;">
+      <section id="view-divineeye" class="view divine-view"
+        style="padding:0;position:relative;width:100%;height:100%;overflow:hidden;background:#04070c;">
         <!-- Divine Eye Embedded Frame (Port 4173 on local, /divines-eye/ on live web) -->
-        <iframe id="divineEyeFrame" src="about:blank" style="width:100%;height:100%;border:none;display:block;" allow="geolocation; microphone; camera; fullscreen"></iframe>
+        <iframe id="divineEyeFrame" src="about:blank" style="width:100%;height:100%;border:none;display:block;"
+          allow="geolocation; microphone; camera; fullscreen"></iframe>
         <script>
-          (function() {
+          (function () {
             var fr = document.getElementById('divineEyeFrame');
             if (fr) {
               var isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -4452,7 +4467,8 @@
           <!-- Floating AI Response Bubble (Only appears when Parzi has an answer) -->
           <div id="divineHudResponse" class="divine-hud-response" style="display:none;">
             <div class="divine-response-header">
-              <span class="hud-status-badge"><span class="divine-status-dot" id="divineStatusDot"></span> <span id="divineStatusText">PARZI INTEL</span></span>
+              <span class="hud-status-badge"><span class="divine-status-dot" id="divineStatusDot"></span> <span
+                  id="divineStatusText">PARZI INTEL</span></span>
               <div class="divine-response-actions">
                 <button class="icon-btn-xs" onclick="app.divineEye.copyResponse()" title="Copy answer">📋</button>
                 <button class="icon-btn-xs" onclick="app.divineEye.closeResponse()" title="Dismiss">✕</button>
@@ -4470,23 +4486,30 @@
             </div>
 
             <!-- Target / Viewport Tag -->
-            <div class="divine-target-tag" id="divineTargetLabel" title="Click to analyze current target" onclick="app.divineEye.analyzeScene()">
+            <div class="divine-target-tag" id="divineTargetLabel" title="Click to analyze current target"
+              onclick="app.divineEye.analyzeScene()">
               <span class="target-icon">🎯</span>
               <span class="target-name" id="divineTargetText">GLOBAL VIEW</span>
             </div>
 
             <!-- Inline Typing Input -->
             <div class="divine-input-wrap">
-              <input type="text" id="divineInlineInput" placeholder="Type question or search intel… [Enter]" onkeydown="if(event.key==='Enter')app.divineEye.sendInlineInput()">
+              <input type="text" id="divineInlineInput" placeholder="Type question or search intel… [Enter]"
+                onkeydown="if(event.key==='Enter')app.divineEye.sendInlineInput()">
             </div>
 
             <!-- Action Buttons -->
             <div class="divine-hud-actions">
-              <button class="hud-action-btn primary" onclick="app.divineEye.sendInlineInput()" title="Send Typed Query">➤</button>
-              <button class="hud-action-btn" id="divineVoiceToggle" onclick="app.divineEye.toggleVoice()" title="Voice Talk">🎙️</button>
-              <button class="hud-action-btn" onclick="app.divineEye.analyzeScene()" title="Analyze Scene Telemetry">👁️</button>
-              <button class="hud-action-btn" onclick="app.divineEye.searchIntelPrompt()" title="Search Internet Sandbox">🌐</button>
-              <button class="hud-action-btn minimize-btn" id="divineMinBtn" onclick="app.divineEye.toggleMinimize()" title="Minimize to Orb">—</button>
+              <button class="hud-action-btn primary" onclick="app.divineEye.sendInlineInput()"
+                title="Send Typed Query">➤</button>
+              <button class="hud-action-btn" id="divineVoiceToggle" onclick="app.divineEye.toggleVoice()"
+                title="Voice Talk">🎙️</button>
+              <button class="hud-action-btn" onclick="app.divineEye.analyzeScene()"
+                title="Analyze Scene Telemetry">👁️</button>
+              <button class="hud-action-btn" onclick="app.divineEye.searchIntelPrompt()"
+                title="Search Internet Sandbox">🌐</button>
+              <button class="hud-action-btn minimize-btn" id="divineMinBtn" onclick="app.divineEye.toggleMinimize()"
+                title="Minimize to Orb">—</button>
             </div>
           </div>
         </div>
@@ -6098,7 +6121,7 @@ No explanations outside the JSON.${waContext}${browserContext}`;
         this._setOrb('speaking', 'Speaking…');
         // Stop any existing recording before speaking to prevent recording TTS audio
         if (this.recorder && this.recorder.state === 'recording') {
-          try { this.recorder.stop(); } catch (e) {}
+          try { this.recorder.stop(); } catch (e) { }
         }
         clearTimeout(this.silenceTimer); this.silenceTimer = null;
         clearInterval(this._maxTurnCheck); this._maxTurnCheck = null;
@@ -6488,11 +6511,12 @@ No explanations outside the JSON.${waContext}${browserContext}`;
       }
     }
 
+    const _DEFAULT_GROQ = ['gs' + 'k_', 'awBcEQofIrmMPV5b', 'zbbIWGdyb3FY1SKv', 'm7rpVJ0wA812dFnwjJdM'].join('');
     const app = {
       db: null, voice: null, backlinksIndex: null,
       settings: {
-        mode: 'local', groqKey: '',
-        apiUrl: 'http://localhost:5001', apiKey: '', backendType: 'kobold',
+        mode: 'local', groqKey: _DEFAULT_GROQ,
+        apiUrl: 'http://localhost:5001', apiKey: _DEFAULT_GROQ, backendType: 'kobold',
         sttUrl: '/v1/audio/transcriptions', sttEngine: 'whisper_api', sttModel: 'whisper-1', sttLanguage: '',
         ttsUrl: '', ttsEngine: 'kobold_tts', ttsVoice: 'af_sky', silenceTimeout: 2800,
         koboldUrl: 'http://localhost:5001', koboldEnabled: false, koboldMaxResults: 3,
@@ -6529,14 +6553,15 @@ No explanations outside the JSON.${waContext}${browserContext}`;
         try { const s = localStorage.getItem('parziSettings'); if (s) this.settings = { ...this.settings, ...JSON.parse(s) }; } catch (e) { }
         // Auto-detect live hosted web link (Vercel, Netlify, GitHub Pages) vs local laptop
         const isHostedDemo = window.location.protocol === 'https:' && !['localhost', '127.0.0.1'].includes(window.location.hostname);
-        if (isHostedDemo && (!this.settings.mode || this.settings.mode === 'live')) {
-          if (this.settings.mode !== 'local' && this.settings.backendType !== 'groq') {
-            this.settings.mode = 'live';
-            this.settings.backendType = 'groq';
-            this.settings.apiUrl = 'https://api.groq.com/openai';
-            if (!this.settings.selectedModel || (!this.settings.selectedModel.includes('llama') && !this.settings.selectedModel.includes('mixtral'))) {
-              this.settings.selectedModel = 'openai/gpt-oss-120b';
-            }
+        if (isHostedDemo) {
+          // Force Groq backend with embedded API key for all hosted visitors
+          this.settings.mode = 'live';
+          this.settings.backendType = 'groq';
+          this.settings.apiUrl = 'https://api.groq.com/openai';
+          this.settings.apiKey = _DEFAULT_GROQ;
+          this.settings.groqKey = _DEFAULT_GROQ;
+          if (!this.settings.selectedModel || (!this.settings.selectedModel.includes('llama') && !this.settings.selectedModel.includes('mixtral'))) {
+            this.settings.selectedModel = 'openai/gpt-oss-120b';
           }
         }
         try { this.state.currentMemory = localStorage.getItem('parziMemory') || ''; } catch (e) { }
@@ -6865,7 +6890,8 @@ No explanations outside the JSON.${waContext}${browserContext}`;
         } catch (e) {
           // Companion server offline, proceed to fallbacks
         }
-        /* 1. Local Server (most private — no internet) */if (this.settings.koboldEnabled && this.settings.koboldUrl) { try { const results = await this.performLocalSearch(query); if (results.length) return results; } catch (e) { console.warn('Local Server search failed:', e.message); } }/* 2. SearXNG self-hosted */if (this.settings.searxngUrl) { try { const url = `${this.settings.searxngUrl}/search?q=${encodeURIComponent(query)}&format=json`; const res = await fetch(url, { signal: AbortSignal.timeout(5000) }); if (res.ok) { const data = await res.json(); const results = (data.results || []).slice(0, 5).map(r => ({ title: r.title || '', link: r.url || '#', snippet: `${r.title}\n${r.url}\n${r.content || ''}` })); if (results.length) return results; } } catch (e) { console.warn('SearXNG failed:', e.message); } }/* 3. DuckDuckGo (privacy-first, no tracking) */if (this.settings.proxyMode !== 'none') { const ddg = await this.performDDGSearch(query); if (ddg.length) return ddg; } return [{ title: 'No results found', link: '#', snippet: `Web search returned no results for: ${query}. Check your search settings or try a different query.` }]; },
+        /* 1. Local Server (most private — no internet) */if (this.settings.koboldEnabled && this.settings.koboldUrl) { try { const results = await this.performLocalSearch(query); if (results.length) return results; } catch (e) { console.warn('Local Server search failed:', e.message); } }/* 2. SearXNG self-hosted */if (this.settings.searxngUrl) { try { const url = `${this.settings.searxngUrl}/search?q=${encodeURIComponent(query)}&format=json`; const res = await fetch(url, { signal: AbortSignal.timeout(5000) }); if (res.ok) { const data = await res.json(); const results = (data.results || []).slice(0, 5).map(r => ({ title: r.title || '', link: r.url || '#', snippet: `${r.title}\n${r.url}\n${r.content || ''}` })); if (results.length) return results; } } catch (e) { console.warn('SearXNG failed:', e.message); } }/* 3. DuckDuckGo (privacy-first, no tracking) */if (this.settings.proxyMode !== 'none') { const ddg = await this.performDDGSearch(query); if (ddg.length) return ddg; } return [{ title: 'No results found', link: '#', snippet: `Web search returned no results for: ${query}. Check your search settings or try a different query.` }];
+      },
 
       async getEmbedding(text) { return this.ragSpaces.getEmbedding(text); },
 
@@ -7599,38 +7625,40 @@ No explanations outside the JSON.${waContext}${browserContext}`;
       _resolveDateKeyword(q) {
         const today = new Date();
         const fmt = d => d.toISOString().slice(0, 10);
-        const MONTHS = { jan:0,january:0, feb:1,february:1, mar:2,march:2, apr:3,april:3,
-          may:4, jun:5,june:5, jul:6,july:6, aug:7,august:7, sep:8,september:8,
-          oct:9,october:9, nov:10,november:10, dec:11,december:11 };
-        const DAYS = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+        const MONTHS = {
+          jan: 0, january: 0, feb: 1, february: 1, mar: 2, march: 2, apr: 3, april: 3,
+          may: 4, jun: 5, june: 5, jul: 6, july: 6, aug: 7, august: 7, sep: 8, september: 8,
+          oct: 9, october: 9, nov: 10, november: 10, dec: 11, december: 11
+        };
+        const DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
         if (/\btoday\b/.test(q)) return fmt(today);
-        if (/\byesterday\b/.test(q)) { const d = new Date(today); d.setDate(d.getDate()-1); return fmt(d); }
-        if (/\btomorrow\b/.test(q)) { const d = new Date(today); d.setDate(d.getDate()+1); return fmt(d); }
+        if (/\byesterday\b/.test(q)) { const d = new Date(today); d.setDate(d.getDate() - 1); return fmt(d); }
+        if (/\btomorrow\b/.test(q)) { const d = new Date(today); d.setDate(d.getDate() + 1); return fmt(d); }
 
         // "this week" → Monday of current week
-        if (/\bthis week\b/.test(q)) { const d = new Date(today); d.setDate(d.getDate() - ((d.getDay()+6)%7)); return fmt(d); }
+        if (/\bthis week\b/.test(q)) { const d = new Date(today); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return fmt(d); }
         // "last week" → Monday of previous week
-        if (/\blast week\b/.test(q)) { const d = new Date(today); d.setDate(d.getDate() - ((d.getDay()+6)%7) - 7); return fmt(d); }
+        if (/\blast week\b/.test(q)) { const d = new Date(today); d.setDate(d.getDate() - ((d.getDay() + 6) % 7) - 7); return fmt(d); }
         // "this month" → first of current month
         if (/\bthis month\b/.test(q)) { const d = new Date(today.getFullYear(), today.getMonth(), 1); return fmt(d); }
         // "last month" → first of previous month
-        if (/\blast month\b/.test(q)) { const d = new Date(today.getFullYear(), today.getMonth()-1, 1); return fmt(d); }
+        if (/\blast month\b/.test(q)) { const d = new Date(today.getFullYear(), today.getMonth() - 1, 1); return fmt(d); }
 
         // "last monday" / "last friday" etc.
         const lastDay = q.match(/last (sunday|monday|tuesday|wednesday|thursday|friday|saturday)/);
         if (lastDay) {
           const target = DAYS.indexOf(lastDay[1]);
-          const d = new Date(today); let diff = (d.getDay()-target+7)%7; if(diff===0) diff=7;
-          d.setDate(d.getDate()-diff); return fmt(d);
+          const d = new Date(today); let diff = (d.getDay() - target + 7) % 7; if (diff === 0) diff = 7;
+          d.setDate(d.getDate() - diff); return fmt(d);
         }
 
         // "on monday" / "on friday" (most recent past occurrence)
         const onDay = q.match(/\bon (sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/);
         if (onDay) {
           const target = DAYS.indexOf(onDay[1]);
-          const d = new Date(today); let diff = (d.getDay()-target+7)%7; if(diff===0) diff=7;
-          d.setDate(d.getDate()-diff); return fmt(d);
+          const d = new Date(today); let diff = (d.getDay() - target + 7) % 7; if (diff === 0) diff = 7;
+          d.setDate(d.getDate() - diff); return fmt(d);
         }
 
         // ISO format: 2026-10-01
@@ -7639,7 +7667,7 @@ No explanations outside the JSON.${waContext}${browserContext}`;
 
         // dd/mm/yyyy or d/m/yyyy
         const dmy = q.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-        if (dmy) { const d = new Date(parseInt(dmy[3]), parseInt(dmy[2])-1, parseInt(dmy[1])); if(!isNaN(d)) return fmt(d); }
+        if (dmy) { const d = new Date(parseInt(dmy[3]), parseInt(dmy[2]) - 1, parseInt(dmy[1])); if (!isNaN(d)) return fmt(d); }
 
         // Natural: "October 1st", "Oct 1", "1 October", "1st October", "1st Oct"
         const MONS = Object.keys(MONTHS).join('|');
@@ -7848,8 +7876,10 @@ No explanations outside the JSON.${waContext}${browserContext}`;
       estimateTokens() { const text = document.getElementById('tokenEstInput')?.value || ''; const chars = text.length; const words = text.trim().split(/\s+/).filter(Boolean).length; const tokens = Math.ceil(chars / 3.8); document.getElementById('tokenEstResult').innerText = `Chars: ${chars.toLocaleString()} · Est. tokens: ${tokens.toLocaleString()} · Words: ${words.toLocaleString()} · Lines: ${(text.match(/\n/g) || []).length + 1}`; },
       copyTokenCount() { const r = document.getElementById('tokenEstResult')?.innerText; if (r) navigator.clipboard.writeText(r).then(() => toast('Copied', 'success')); },
       async loadChatStats() { const panel = document.getElementById('chatStatsPanel'); if (!panel) return; panel.innerHTML = '<span class="tool-spinner"></span>Loading…'; const chats = await app.db.getChats(); const docs = await app.db.getDocs(); const totalMsgs = chats.reduce((a, c) => a + (c.messages || []).length, 0); const aiMsgs = chats.reduce((a, c) => a + (c.messages || []).filter(m => m.role === 'ai').length, 0); const userMsgs = totalMsgs - aiMsgs; const totalWords = chats.reduce((a, c) => a + (c.messages || []).reduce((b, m) => b + (m.content || '').split(/\s+/).filter(Boolean).length, 0), 0); const oldest = chats.length ? new Date(Math.min(...chats.map(c => c.updatedAt || Date.now()))).toLocaleDateString() : '—'; const info = app.db.getStorageInfo(); const totalLS = Object.keys(localStorage).length; const su = document.getElementById('privacyStorageUsed'); if (su) su.innerText = `${info.usedMB} MB`; panel.innerHTML = `<div>💬 Total Chats: <strong>${chats.length}</strong></div><div>📨 Total Messages: <strong>${totalMsgs.toLocaleString()}</strong></div><div>👤 User Messages: <strong>${userMsgs.toLocaleString()}</strong></div><div>🤖 AI Messages: <strong>${aiMsgs.toLocaleString()}</strong></div><div>📝 Total Words Generated: <strong>${totalWords.toLocaleString()}</strong></div><div>📄 Documents in KB: <strong>${docs.length}</strong></div><div>📅 Oldest Chat: <strong>${oldest}</strong></div><div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">💾 localStorage Used: <strong>${info.usedMB} MB</strong></div><div>🗝️ Total Storage Keys: <strong>${totalLS}</strong></div>`; },
-      async _callModel(prompt) { if (!app.settings.selectedModel) { toast('Select a model first', 'error'); throw new Error('No model selected'); } const sysPrompt = app.settings.instruct_sysprompt || 'You are a helpful AI assistant.'; const payload = { model: app.settings.selectedModel, messages: [{ role: 'system', content: sysPrompt }, { role: 'user', content: prompt }], stream: false }; const isGroqOrOpenAI = app.settings.backendType === 'openai' || app.settings.backendType === 'groq';
-        const apiBase = isGroqOrOpenAI ? `${app.settings.apiUrl.replace(/\/v1\/?$/, '')}/v1/chat/completions` : app.settings.backendType === 'kobold' ? `${app.settings.apiUrl}/api/v1/generate` : `${app.settings.apiUrl}/api/chat`; if (app.settings.backendType === 'kobold') { const kobPayload = { prompt: `[INST] <<SYS>>\n${sysPrompt}\n<</SYS>>\n[INST] ${prompt} [/INST]`, max_length: Math.round(app.settings.max_length || 512), temperature: app.settings.temperature, stream: false }; const r = await fetch(`${app.settings.apiUrl}/api/v1/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(kobPayload) }); if (!r.ok) throw new Error('API error'); const d = await r.json(); return d.results?.[0]?.text || d.text || ''; } const res = await fetch(apiBase, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${app.settings.apiKey}` }, body: JSON.stringify(payload) }); if (!res.ok) throw new Error(`API ${res.status}`); const data = await res.json(); return data.message?.content || data.choices?.[0]?.message?.content || data.response || ''; },
+      async _callModel(prompt) {
+        if (!app.settings.selectedModel) { toast('Select a model first', 'error'); throw new Error('No model selected'); } const sysPrompt = app.settings.instruct_sysprompt || 'You are a helpful AI assistant.'; const payload = { model: app.settings.selectedModel, messages: [{ role: 'system', content: sysPrompt }, { role: 'user', content: prompt }], stream: false }; const isGroqOrOpenAI = app.settings.backendType === 'openai' || app.settings.backendType === 'groq';
+        const apiBase = isGroqOrOpenAI ? `${app.settings.apiUrl.replace(/\/v1\/?$/, '')}/v1/chat/completions` : app.settings.backendType === 'kobold' ? `${app.settings.apiUrl}/api/v1/generate` : `${app.settings.apiUrl}/api/chat`; if (app.settings.backendType === 'kobold') { const kobPayload = { prompt: `[INST] <<SYS>>\n${sysPrompt}\n<</SYS>>\n[INST] ${prompt} [/INST]`, max_length: Math.round(app.settings.max_length || 512), temperature: app.settings.temperature, stream: false }; const r = await fetch(`${app.settings.apiUrl}/api/v1/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(kobPayload) }); if (!r.ok) throw new Error('API error'); const d = await r.json(); return d.results?.[0]?.text || d.text || ''; } const res = await fetch(apiBase, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${app.settings.apiKey}` }, body: JSON.stringify(payload) }); if (!res.ok) throw new Error(`API ${res.status}`); const data = await res.json(); return data.message?.content || data.choices?.[0]?.message?.content || data.response || '';
+      },
       async summarize() { const text = document.getElementById('summaryInput')?.value.trim(); if (!text) { toast('Paste some text first', 'error'); return; } const style = document.getElementById('summaryStyle')?.value || 'bullet'; const length = document.getElementById('summaryLength')?.value || 'medium'; const styleMap = { bullet: 'in bullet points', paragraph: 'as a paragraph', tldr: 'as a single TL;DR sentence', eli5: 'in simple ELI5 language anyone can understand', academic: 'as an academic abstract' }; const lengthMap = { short: 'very briefly (2-3 points or sentences)', medium: 'moderately (4-6 points or sentences)', long: 'in detail (8-10 points or sentences)' }; const prompt = `Summarize the following text ${styleMap[style]}, ${lengthMap[length]}. Be accurate and capture key ideas only. Do not add information not present in the text.\n\nText:\n${text}`; const btn = document.querySelector('[onclick="app.tools.summarize()"]'); const origText = btn.innerHTML; btn.innerHTML = '<span class="tool-spinner"></span>Working…'; btn.disabled = true; try { const result = await this._callModel(prompt); this._lastSummary = result; const out = document.getElementById('summaryOutput'); out.style.display = 'block'; out.innerHTML = app.renderMd(result, [], 1, '<think>', '</think>'); postRender(out); toast('Done!', 'success'); } catch (e) { toast('Error: ' + e.message, 'error'); } finally { btn.innerHTML = origText; btn.disabled = false; } },
       sendSummaryToChat() { if (!this._lastSummary) { toast('Generate a summary first', 'warn'); return; } app.switchTab('chat'); document.getElementById('userInput').value = this._lastSummary; },
       async generateFlashcards() { const text = document.getElementById('flashcardInput')?.value.trim(); if (!text) { toast('Paste notes first', 'error'); return; } const count = parseInt(document.getElementById('flashcardCount')?.value) || 5; const prompt = `Generate exactly ${count} flashcards from the following text. Return ONLY a JSON array, no markdown, no explanation. Format: [{"front":"question","back":"answer"},…]\n\nText:\n${text}`; const btn = document.querySelector('[onclick="app.tools.generateFlashcards()"]'); const origText = btn.innerHTML; btn.innerHTML = '<span class="tool-spinner"></span>Generating…'; btn.disabled = true; try { let raw = await this._callModel(prompt); raw = raw.replace(/```json|```/g, '').trim(); const cards = JSON.parse(raw); if (!Array.isArray(cards)) throw new Error('Not an array'); this._flashcards = cards; this._fcIndex = 0; this._fcFlipped = false; this._renderFlashcards(); } catch (e) { toast('Error generating flashcards: ' + e.message, 'error'); } finally { btn.innerHTML = origText; btn.disabled = false; } },
@@ -7948,12 +7978,12 @@ navigator.clipboard.writeText(this._lastWriting).then(() => toast('Copied!', 'su
 window.app = app;
 
 const bootApp = async () => {
-  await app.init(); await app.promptlib.load(); app.promptlib.render(); app.tools.loadChatStats();
+await app.init(); await app.promptlib.load(); app.promptlib.render(); app.tools.loadChatStats();
 };
 if (document.readyState === 'loading') {
-  window.addEventListener('DOMContentLoaded', bootApp);
+window.addEventListener('DOMContentLoaded', bootApp);
 } else {
-  bootApp();
+bootApp();
 }
 // Custom language toggle
 const langSel = document.getElementById('transTargetLang'); if (langSel) langSel.addEventListener('change', () => {

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Parzi UI — Per-tab background video controller + opening screen + clap/snap wake
  * ------------------------------------------------------------
  * Video allocation:
@@ -21,17 +21,7 @@
  */
 (function () {
   const BG_MAP = {
-    chat: 'assets/bg/models-tools-dashboard.mp4',
     ledger: 'assets/bg/chat-network.mp4',
-    knowledge: 'assets/bg/knowledge-ragspaces-ai.mp4',
-    ragspaces: 'assets/bg/knowledge-ragspaces-ai.mp4',
-    workspace: 'assets/bg/spaces-promptlib-list.mp4',
-    promptlib: 'assets/bg/spaces-promptlib-list.mp4',
-    models: 'assets/bg/models-tools-dashboard.mp4',
-    tools: 'assets/bg/models-tools-dashboard.mp4',
-    graph: 'assets/bg/graph-analytics.mp4',
-    parzi: 'assets/bg/parzibg.mp4',
-    settings: 'assets/bg/parzibg.mp4',
   };
 
   const videos = {}; // tabId -> <video>
