@@ -1,16 +1,18 @@
 /**
  * Universal Resilient Overpass API Proxy for Divine's Eye Traffic on Vercel
- * 1. Races public Overpass mirrors in parallel with strict timeout.
- * 2. If all mirrors time out or fail, generates tactical road vectors for the bounding box.
- * 3. Never returns 504 or empty failure — always keeps traffic alive.
+ * 1. Races all major global Overpass mirrors in parallel with 10s deadline.
+ * 2. Caches responses at the Vercel edge so repeat visits load in 0ms.
+ * 3. Graceful fallback only if all global mirrors are down.
  */
+
+const _cache = new Map();
 
 function generateFallbackRoads(s, w, n, e) {
   const elements = [];
   const numGrid = 8;
   let id = 900000;
 
-  // East-West avenues
+  // East-West avenues with natural curves
   for (let i = 0; i <= numGrid; i++) {
     const lat = s + (i / numGrid) * (n - s);
     const geom = [];
@@ -23,12 +25,12 @@ function generateFallbackRoads(s, w, n, e) {
     elements.push({
       type: 'way',
       id: ++id,
-      tags: { highway: i % 2 === 0 ? 'primary' : 'secondary', oneway: i % 3 === 0 ? 'yes' : 'no' },
+      tags: { highway: i % 2 === 0 ? 'primary' : 'secondary', oneway: i % 3 === 0 ? 'yes' : 'no', name: `Avenue ${i + 1}` },
       geometry: geom
     });
   }
 
-  // North-South streets
+  // North-South streets with natural curves
   for (let j = 0; j <= numGrid; j++) {
     const lon = w + (j / numGrid) * (e - w);
     const geom = [];
@@ -41,23 +43,10 @@ function generateFallbackRoads(s, w, n, e) {
     elements.push({
       type: 'way',
       id: ++id,
-      tags: { highway: j % 2 === 0 ? 'primary' : 'secondary', oneway: j % 3 === 0 ? 'yes' : 'no' },
+      tags: { highway: j % 2 === 0 ? 'primary' : 'secondary', oneway: j % 3 === 0 ? 'yes' : 'no', name: `Street ${j + 1}` },
       geometry: geom
     });
   }
-
-  // Diagonal connecting arterials
-  const diag1 = [];
-  const diag2 = [];
-  for (let k = 0; k <= 8; k++) {
-    const t = k / 8;
-    diag1.push({ lat: s + t * (n - s), lon: w + t * (e - w) });
-    diag2.push({ lat: s + t * (n - s), lon: e - t * (e - w) });
-  }
-  elements.push(
-    { type: 'way', id: ++id, tags: { highway: 'motorway', oneway: 'yes' }, geometry: diag1 },
-    { type: 'way', id: ++id, tags: { highway: 'motorway', oneway: 'no' }, geometry: diag2 }
-  );
 
   return {
     version: 0.6,
@@ -96,7 +85,17 @@ module.exports = async (req, res) => {
     return res.status(400).json({ error: 'No Overpass query provided' });
   }
 
-  // Parse bounding box from query for fallback
+  // Cache key based on query
+  const cacheKey = query.replace(/\s+/g, '');
+  const cached = _cache.get(cacheKey);
+  if (cached && (Date.now() - cached.time < 3600000)) { // 1 hr in-memory cache
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate=604800');
+    res.setHeader('X-Overpass-Cache', 'HIT');
+    return res.status(200).send(cached.text);
+  }
+
+  // Parse bounding box from query
   const bboxMatch = query.match(/\(([-0-9.]+),\s*([-0-9.]+),\s*([-0-9.]+),\s*([-0-9.]+)\)/);
   const bbox = bboxMatch ? {
     s: parseFloat(bboxMatch[1]),
@@ -105,23 +104,26 @@ module.exports = async (req, res) => {
     e: parseFloat(bboxMatch[4])
   } : null;
 
+  // Global Overpass mirrors to race in parallel
   const mirrors = [
+    'https://overpass.openstreetmap.fr/api/interpreter',
     'https://overpass-api.de/api/interpreter',
     'https://lz4.overpass-api.de/api/interpreter',
     'https://z.overpass-api.de/api/interpreter',
+    'https://overpass.private.coffee/api/interpreter',
+    'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
     'https://overpass.kumi.systems/api/interpreter'
   ];
 
-  // Race mirrors in parallel with 5-second timeout
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 5000);
+  const timeoutId = setTimeout(() => controller.abort(), 9500);
 
   const fetchPromise = Promise.any(mirrors.map(async (mirror) => {
     const resp = await fetch(mirror, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'User-Agent': 'ParziDivineEye/2.0 (+https://github.com/hharasudhan122-ai/Gen-ai-project-; contact: hharasudhan122@gmail.com)',
         'Accept': 'application/json, text/plain, */*'
       },
       body: `data=${encodeURIComponent(query)}`,
@@ -139,6 +141,14 @@ module.exports = async (req, res) => {
   try {
     const winner = await fetchPromise;
     clearTimeout(timeoutId);
+
+    // Save to memory cache (keep size <= 100)
+    if (_cache.size >= 100) {
+      const first = _cache.keys().next().value;
+      _cache.delete(first);
+    }
+    _cache.set(cacheKey, { text: winner.rawText, time: Date.now() });
+
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate=604800');
     res.setHeader('X-Overpass-Upstream', winner.mirror);
