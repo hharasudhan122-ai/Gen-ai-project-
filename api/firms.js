@@ -155,10 +155,11 @@ module.exports = async (req, res) => {
           const trailing = filterTrailing24h(records, now);
           return { source, count: trailing.length, ok: true, fires: trailing };
         }
+        return { source, count: 0, ok: false, status: r.status, reason: 'empty_or_unparseable', len: text.length, sample: text.slice(0, 100), fires: [] };
       }
-      return { source, count: 0, ok: false, fires: [] };
+      return { source, count: 0, ok: false, status: r.status, reason: 'http_' + r.status, fires: [] };
     } catch (e) {
-      return { source, count: 0, ok: false, fires: [] };
+      return { source, count: 0, ok: false, reason: e.name + ': ' + e.message, fires: [] };
     }
   });
 
@@ -168,14 +169,21 @@ module.exports = async (req, res) => {
 
   for (const item of settled) {
     if (item.status === 'fulfilled') {
-      sourcesOut.push({ source: item.value.source, count: item.value.count, ok: item.value.ok });
+      sourcesOut.push({
+        source: item.value.source,
+        count: item.value.count,
+        ok: item.value.ok,
+        status: item.value.status,
+        reason: item.value.reason,
+        sample: item.value.sample
+      });
       if (item.value.ok && item.value.fires.length > 0) {
         allFires.push(...item.value.fires);
       }
     }
   }
 
-  if (!sourcesOut.some(s => s.ok) && _cache) {
+  if (!sourcesOut.some(s => s.ok) && _cache && _cache.fires.length > 0) {
     // Serve stale cache if available
     const freshFires = filterTrailing24h(_cache.fires, now);
     return res.status(200).json({
@@ -188,13 +196,17 @@ module.exports = async (req, res) => {
     });
   }
 
-  _cache = { sources: sourcesOut, fires: allFires };
-  _cacheTime = now;
+  if (allFires.length > 0) {
+    _cache = { sources: sourcesOut, fires: allFires };
+    _cacheTime = now;
+    res.setHeader('Cache-Control', 'public, s-maxage=900, stale-while-revalidate=1800');
+  } else {
+    res.setHeader('Cache-Control', 'no-store, max-age=0');
+  }
 
   res.setHeader('Content-Type', 'application/json');
-  res.setHeader('Cache-Control', 'public, s-maxage=900, stale-while-revalidate=1800');
   return res.status(200).json({
-    fetchedAt: _cacheTime,
+    fetchedAt: now,
     stale: false,
     ttlMs: CACHE_TTL_MS,
     sources: sourcesOut,
