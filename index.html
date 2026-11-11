@@ -3435,6 +3435,12 @@
           style="cursor:pointer" title="Click to test/enable Clap & Snap Wake"><span class="conn-dot" id="clapDot"
             style="background:var(--amber)"></span><span id="clapText">Clap Wake: Tap to enable</span></div>
         <div class="credits">Parzi UI · 100% offline &amp; private</div>
+        <div class="legal-links" style="font-size:0.7rem;color:var(--text3);margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;line-height:1.4">
+          <a href="/privacy" target="_blank" style="color:var(--text3);text-decoration:none">Privacy</a>·
+          <a href="/terms" target="_blank" style="color:var(--text3);text-decoration:none">Terms</a>·
+          <a href="/refund" target="_blank" style="color:var(--text3);text-decoration:none">Refund</a>·
+          <a href="/delete-account" target="_blank" style="color:var(--text3);text-decoration:none">Delete Data</a>
+        </div>
       </div>
     </aside>
     <main class="main">
@@ -4020,6 +4026,12 @@
               onclick="app.exportAllData()">📤 Export All Data</button>
             <label class="sec-btn" style="margin-top:3px;font-size:.78rem;padding:.4rem .8rem;cursor:pointer">📥 Import
               Data<input type="file" hidden accept=".json" onchange="app.importAllData(this)"></label>
+            <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);font-size:.78rem;color:var(--text3);display:flex;gap:8px;flex-wrap:wrap">
+              <a href="/privacy" target="_blank" style="color:var(--accent);text-decoration:none">Privacy Policy</a>·
+              <a href="/terms" target="_blank" style="color:var(--accent);text-decoration:none">Terms of Service</a>·
+              <a href="/refund" target="_blank" style="color:var(--accent);text-decoration:none">Refund Policy</a>·
+              <a href="/delete-account" target="_blank" style="color:var(--accent);text-decoration:none">Delete Data</a>
+            </div>
           </div>
         </div>
       </section>
@@ -4418,6 +4430,10 @@
                 "call Amma" type commands.</p>
               <input type="text" id="parziCompanionUrl" value="http://127.0.0.1:7890"
                 onchange="app.parzi.settings.companionUrl=this.value;app.parzi.saveSettings()"
+                style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:.4rem .6rem;border-radius:8px;font-size:.82rem;outline:none;margin-bottom:6px">
+              <label style="font-size:.74rem;color:var(--text3);display:block;margin-bottom:3px">Security Token (X-Parzi-Token):</label>
+              <input type="password" id="parziCompanionToken" placeholder="Leave empty or enter companion token"
+                onchange="app.parzi.settings.companionToken=this.value.trim();app.parzi.saveSettings()"
                 style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:.4rem .6rem;border-radius:8px;font-size:.82rem;outline:none;margin-bottom:6px">
               <div id="parziCompanionStatus" style="font-size:.78rem;color:var(--text3)">Not checked yet</div>
             </div>
@@ -5419,8 +5435,16 @@
         this._lastWhatsappTarget = null;
         this._browserOpen = false;
         this._browserTarget = null;
-        this.settings = { model: '', sttLang: 'auto', companionUrl: 'http://127.0.0.1:7890', autoListen: true };
+        this.settings = { model: '', sttLang: 'auto', companionUrl: 'http://127.0.0.1:7890', companionToken: '', autoListen: true };
         this.load();
+      }
+
+      _companionHeaders() {
+        const h = { 'Content-Type': 'application/json' };
+        if (this.settings && this.settings.companionToken) {
+          h['X-Parzi-Token'] = this.settings.companionToken;
+        }
+        return h;
       }
 
       load() { try { const s = localStorage.getItem('parziSettings'); if (s) this.settings = { ...this.settings, ...JSON.parse(s) }; } catch (e) { } }
@@ -5431,6 +5455,7 @@
         const ls = document.getElementById('parziLangSelect'); if (ls) ls.value = this.settings.sttLang || 'auto';
         const al = document.getElementById('parziAutoListen'); if (al) al.checked = this.settings.autoListen !== false;
         const cu = document.getElementById('parziCompanionUrl'); if (cu) cu.value = this.settings.companionUrl;
+        const ct = document.getElementById('parziCompanionToken'); if (ct) ct.value = this.settings.companionToken || '';
         this.testCompanion(true);
       }
 
@@ -5887,7 +5912,7 @@ No explanations outside the JSON.${waContext}${browserContext}`;
           const target = parsed.target === 'phone' ? 'phone' : 'pc';
           this._addBubble('action', `⚙️ Opening "${parsed.app}" on the ${target === 'phone' ? 'phone' : 'PC'}…`);
           try {
-            const r = await fetch(`${this.settings.companionUrl}/open-app`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ app: parsed.app, target }), signal: AbortSignal.timeout(8000) });
+            const r = await fetch(`${this.settings.companionUrl}/open-app`, { method: 'POST', headers: this._companionHeaders(), body: JSON.stringify({ app: parsed.app, target }), signal: AbortSignal.timeout(8000) });
             const d = await r.json().catch(() => ({}));
             if (!r.ok || d.ok === false) throw new Error(d.error || `companion ${r.status}`);
             this._logAction(`Opened app: ${parsed.app} (${target})`);
@@ -5899,7 +5924,7 @@ No explanations outside the JSON.${waContext}${browserContext}`;
         } else if (parsed.action === 'call') {
           this._addBubble('action', `📞 Calling "${parsed.contact}"…`);
           try {
-            const r = await fetch(`${this.settings.companionUrl}/call`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contact: parsed.contact }), signal: AbortSignal.timeout(8000) });
+            const r = await fetch(`${this.settings.companionUrl}/call`, { method: 'POST', headers: this._companionHeaders(), body: JSON.stringify({ contact: parsed.contact }), signal: AbortSignal.timeout(8000) });
             const d = await r.json().catch(() => ({}));
             if (!r.ok || d.ok === false) throw new Error(d.error || `companion ${r.status}`);
             this._logAction(`Called: ${parsed.contact}`);
@@ -5916,7 +5941,7 @@ No explanations outside the JSON.${waContext}${browserContext}`;
           const contact = this._cleanSpelledContact(parsed.contact);
           this._addBubble('action', `💬 Opening WhatsApp chat with "${contact}" on the ${target === 'phone' ? 'phone' : 'PC'}…`);
           try {
-            const r = await fetch(`${this.settings.companionUrl}/whatsapp/open`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contact, message: parsed.message || '', target }), signal: AbortSignal.timeout(8000) });
+            const r = await fetch(`${this.settings.companionUrl}/whatsapp/open`, { method: 'POST', headers: this._companionHeaders(), body: JSON.stringify({ contact, message: parsed.message || '', target }), signal: AbortSignal.timeout(8000) });
             const d = await r.json().catch(() => ({}));
             if (!r.ok || d.ok === false) throw new Error(d.error || `companion ${r.status}`);
             this._lastWhatsappContact = contact;
@@ -5938,7 +5963,7 @@ No explanations outside the JSON.${waContext}${browserContext}`;
             // same name appended to old text, matched nothing, and left whatever
             // chat/group was already selected active — nearly sending into the
             // wrong group. Typing into an already-open chat must never re-search.
-            const r = await fetch(`${this.settings.companionUrl}/whatsapp/type`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contact: this._lastWhatsappContact, message: parsed.message || '', target }), signal: AbortSignal.timeout(8000) });
+            const r = await fetch(`${this.settings.companionUrl}/whatsapp/type`, { method: 'POST', headers: this._companionHeaders(), body: JSON.stringify({ contact: this._lastWhatsappContact, message: parsed.message || '', target }), signal: AbortSignal.timeout(8000) });
             const d = await r.json().catch(() => ({}));
             if (!r.ok || d.ok === false) throw new Error(d.error || `companion ${r.status}`);
             await this._speakThenListen(`I've typed "${parsed.message}" into ${this._lastWhatsappContact}'s chat. Double-check that's the right chat on screen — should I send it?`);
@@ -5949,7 +5974,7 @@ No explanations outside the JSON.${waContext}${browserContext}`;
           if (!this._lastWhatsappContact) { await this._speakThenListen(`There's no WhatsApp chat open to send from.`); return; }
           const target = this._lastWhatsappTarget || 'pc';
           try {
-            const r = await fetch(`${this.settings.companionUrl}/whatsapp/send`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ target }), signal: AbortSignal.timeout(6000) });
+            const r = await fetch(`${this.settings.companionUrl}/whatsapp/send`, { method: 'POST', headers: this._companionHeaders(), body: JSON.stringify({ target }), signal: AbortSignal.timeout(6000) });
             const d = await r.json().catch(() => ({}));
             if (!r.ok || d.ok === false) throw new Error(d.error || `companion ${r.status}`);
             this._logAction(`Sent WhatsApp message to ${this._lastWhatsappContact} (${target})`);
@@ -5961,7 +5986,7 @@ No explanations outside the JSON.${waContext}${browserContext}`;
           if (!this._lastWhatsappContact) { await this._speakThenListen(`There's no WhatsApp chat open to call from.`); return; }
           const target = this._lastWhatsappTarget || 'pc';
           try {
-            const r = await fetch(`${this.settings.companionUrl}/whatsapp/call`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ target }), signal: AbortSignal.timeout(6000) });
+            const r = await fetch(`${this.settings.companionUrl}/whatsapp/call`, { method: 'POST', headers: this._companionHeaders(), body: JSON.stringify({ target }), signal: AbortSignal.timeout(6000) });
             const d = await r.json().catch(() => ({}));
             if (!r.ok || d.ok === false) throw new Error(d.error || `companion ${r.status}`);
             await this._speakThenListen(`Calling ${this._lastWhatsappContact} on WhatsApp.`);
@@ -5972,7 +5997,7 @@ No explanations outside the JSON.${waContext}${browserContext}`;
           const where = parsed.target === 'phone' ? 'phone' : 'pc';
           this._addBubble('action', `🌐 Opening "${parsed.url}" in the browser on the ${where === 'phone' ? 'phone' : 'PC'}…`);
           try {
-            const r = await fetch(`${this.settings.companionUrl}/browser/open`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ target: where, browser: parsed.browser || 'edge', url: parsed.url || '' }), signal: AbortSignal.timeout(20000) });
+            const r = await fetch(`${this.settings.companionUrl}/browser/open`, { method: 'POST', headers: this._companionHeaders(), body: JSON.stringify({ target: where, browser: parsed.browser || 'edge', url: parsed.url || '' }), signal: AbortSignal.timeout(20000) });
             const d = await r.json().catch(() => ({}));
             if (!r.ok || d.ok === false) throw new Error(d.error || `companion ${r.status}`);
             this._browserOpen = true;
@@ -5988,7 +6013,7 @@ No explanations outside the JSON.${waContext}${browserContext}`;
           const where = this._browserTarget || 'pc';
           this._addBubble('action', `🌐 Clicking "${parsed.text}"…`);
           try {
-            const r = await fetch(`${this.settings.companionUrl}/browser/click`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ target: where, text: parsed.text || '' }), signal: AbortSignal.timeout(8000) });
+            const r = await fetch(`${this.settings.companionUrl}/browser/click`, { method: 'POST', headers: this._companionHeaders(), body: JSON.stringify({ target: where, text: parsed.text || '' }), signal: AbortSignal.timeout(8000) });
             const d = await r.json().catch(() => ({}));
             if (!r.ok || d.ok === false) throw new Error(d.error || `companion ${r.status}`);
             this._logAction(`Clicked: ${parsed.text}`);
@@ -6001,7 +6026,7 @@ No explanations outside the JSON.${waContext}${browserContext}`;
           const where = this._browserTarget || 'pc';
           this._addBubble('action', `🌐 Typing into the page…`);
           try {
-            const r = await fetch(`${this.settings.companionUrl}/browser/type`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ target: where, field: parsed.field || '', text: parsed.text || '' }), signal: AbortSignal.timeout(8000) });
+            const r = await fetch(`${this.settings.companionUrl}/browser/type`, { method: 'POST', headers: this._companionHeaders(), body: JSON.stringify({ target: where, field: parsed.field || '', text: parsed.text || '' }), signal: AbortSignal.timeout(8000) });
             const d = await r.json().catch(() => ({}));
             if (!r.ok || d.ok === false) throw new Error(d.error || `companion ${r.status}`);
             this._logAction(`Typed into page: ${parsed.text}`);
@@ -6013,7 +6038,7 @@ No explanations outside the JSON.${waContext}${browserContext}`;
           if (!this._browserOpen) { await this._speakThenListen(`There's no browser page open yet.`); return; }
           const where = this._browserTarget || 'pc';
           try {
-            const r = await fetch(`${this.settings.companionUrl}/browser/submit`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ target: where }), signal: AbortSignal.timeout(6000) });
+            const r = await fetch(`${this.settings.companionUrl}/browser/submit`, { method: 'POST', headers: this._companionHeaders(), body: JSON.stringify({ target: where }), signal: AbortSignal.timeout(6000) });
             const d = await r.json().catch(() => ({}));
             if (!r.ok || d.ok === false) throw new Error(d.error || `companion ${r.status}`);
             await this._speakThenListen(`Done.`);
@@ -6024,7 +6049,7 @@ No explanations outside the JSON.${waContext}${browserContext}`;
           if (!this._browserOpen) { await this._speakThenListen(`There's no browser page open yet — tell me what to open first.`); return; }
           const where = this._browserTarget || 'pc';
           try {
-            const r = await fetch(`${this.settings.companionUrl}/browser/read`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ target: where }), signal: AbortSignal.timeout(8000) });
+            const r = await fetch(`${this.settings.companionUrl}/browser/read`, { method: 'POST', headers: this._companionHeaders(), body: JSON.stringify({ target: where }), signal: AbortSignal.timeout(8000) });
             const d = await r.json().catch(() => ({}));
             if (!r.ok || d.ok === false) throw new Error(d.error || `companion ${r.status}`);
             const els = d.elements || [];
@@ -6084,7 +6109,7 @@ No explanations outside the JSON.${waContext}${browserContext}`;
         } else if (parsed.action === 'locate_file') {
           this._addBubble('action', `🔍 Looking for "${parsed.query}"…`);
           try {
-            const r = await fetch(`${this.settings.companionUrl}/files/search`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: parsed.query || '', fileType: parsed.fileType || '' }), signal: AbortSignal.timeout(15000) });
+            const r = await fetch(`${this.settings.companionUrl}/files/search`, { method: 'POST', headers: this._companionHeaders(), body: JSON.stringify({ query: parsed.query || '', fileType: parsed.fileType || '' }), signal: AbortSignal.timeout(15000) });
             const d = await r.json().catch(() => ({}));
             if (!r.ok || d.ok === false) throw new Error(d.error || `companion ${r.status}`);
             const matches = d.matches || [];
@@ -6094,7 +6119,7 @@ No explanations outside the JSON.${waContext}${browserContext}`;
               this._addBubble('ai', `Found ${matches.length} matches: ${summary}${matches.length > 5 ? ', …' : ''}. Opening the most recent one.`);
             }
             const best = matches[0];
-            const rr = await fetch(`${this.settings.companionUrl}/files/locate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path: best.path }), signal: AbortSignal.timeout(8000) });
+            const rr = await fetch(`${this.settings.companionUrl}/files/locate`, { method: 'POST', headers: this._companionHeaders(), body: JSON.stringify({ path: best.path }), signal: AbortSignal.timeout(8000) });
             const dd = await rr.json().catch(() => ({}));
             if (!rr.ok || dd.ok === false) throw new Error(dd.error || `companion ${rr.status}`);
             this._logAction(`Located file: ${best.path}`);
@@ -6875,9 +6900,12 @@ No explanations outside the JSON.${waContext}${browserContext}`;
         /* 0. Companion Server Internet Sandbox (DuckDuckGo + Wikipedia, zero CORS limits) */
         const compUrl = (this.settings.companionUrl || 'http://127.0.0.1:7890').replace(/\/$/, '');
         try {
+          const compHeaders = { 'Content-Type': 'application/json' };
+          const ct = this.parzi?.settings?.companionToken;
+          if (ct) compHeaders['X-Parzi-Token'] = ct;
           const compRes = await fetch(`${compUrl}/search`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: compHeaders,
             body: JSON.stringify({ query, limit: 5 }),
             signal: AbortSignal.timeout(6000)
           });

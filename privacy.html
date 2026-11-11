@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - Parzi</title>
+  <style>
+    :root {
+      --bg: #0a0c10;
+      --card: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --cyan: #00d2ff;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.65;
+      padding: 2rem 1rem;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2.5rem;
+    }
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .back-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    .back-link:hover { text-decoration: underline; }
+    h2 {
+      font-size: 1.25rem;
+      color: #fff;
+      margin-top: 1.8rem;
+      margin-bottom: 0.75rem;
+    }
+    p, ul {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    ul { padding-left: 1.5rem; }
+    li { margin-bottom: 0.4rem; }
+    strong { color: var(--text); }
+    code {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.88rem;
+      color: var(--cyan);
+    }
+    .contact-box {
+      margin-top: 2rem;
+      padding: 1.25rem;
+      background: rgba(88, 166, 255, 0.08);
+      border: 1px solid rgba(88, 166, 255, 0.2);
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Privacy Policy</h1>
+      <a href="/" class="back-link">← Back to Parzi</a>
+    </header>
+
+    <p>Last updated: November 2026</p>
+
+    <h2>1. Zero-Account Architecture</h2>
+    <p>
+      Parzi is built from the ground up to be private and offline-capable. <strong>We do not have user accounts, user logins, or user databases.</strong> You do not need to register, provide your email, or create credentials to use Parzi.
+    </p>
+
+    <h2>2. Local Storage Exclusivity</h2>
+    <p>
+      All personal data generated while using Parzi — including chat histories, custom prompts, settings, world info (lorebook), character personas, and API keys — is stored <strong>exclusively in your browser's own <code>localStorage</code></strong> on your local device.
+    </p>
+    <ul>
+      <li>No conversation logs are uploaded to our servers.</li>
+      <li>No biometric, audio, or speech recognition data is harvested or retained.</li>
+      <li>Vector embeddings generated via Transformers.js run 100% client-side using in-browser WebGPU/WASM.</li>
+    </ul>
+
+    <h2>3. Third-Party AI & Map Services</h2>
+    <p>
+      When you choose to query an external LLM (e.g. Groq, OpenRouter) or view live geospatial layers (e.g. OpenStreetMap, TomTom, NASA FIRMS), data necessary to fulfill that request is transmitted directly to the respective API endpoint. These external providers process requests according to their independent privacy policies. Parzi does not intercept or log these requests.
+    </p>
+
+    <h2>4. How to Clear or Export Your Data</h2>
+    <p>
+      Because all data is stored client-side in your own browser, you maintain complete sovereignty over your information at all times:
+    </p>
+    <ul>
+      <li><strong>Wipe All Data:</strong> Open Parzi, navigate to <strong>Settings</strong> → <strong>Privacy &amp; About</strong>, and click <strong>🗑️ Wipe All Data</strong>.</li>
+      <li><strong>Delete Account / Local Storage:</strong> Visit our <a href="/delete-account" style="color:var(--accent)">Delete Data page</a> to instantly purge all stored records.</li>
+      <li><strong>Browser Cleanup:</strong> You can also clear site cookies and local storage through your browser's privacy settings.</li>
+      <li><strong>Export:</strong> You can export full JSON backups of your conversations and settings at any time from the Settings menu.</li>
+    </ul>
+
+    <h2>5. Cookies & Tracking</h2>
+    <p>
+      Parzi does not use tracking cookies, advertising trackers, or third-party behavioral profiling scripts.
+    </p>
+
+    <div class="contact-box">
+      <strong>Questions or Feedback?</strong>
+      <p style="margin-top:0.4rem;margin-bottom:0">Contact: <a href="mailto:hharasudhan122@gmail.com" style="color:var(--accent)">hharasudhan122@gmail.com</a></p>
+    </div>
+  </div>
+</body>
+</html>

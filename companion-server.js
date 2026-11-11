@@ -26,7 +26,8 @@ const http = require('http');
 const os = require('os');
 const path = require('path');
 const fs = require('fs');
-const { execFile, exec, spawn } = require('child_process');
+const crypto = require('crypto');
+const { execFile, spawn } = require('child_process');
 
 // Optional — only needed for browser automation (open/click/type on web
 // pages). Everything else in this file works fine without it. If it's not
@@ -41,6 +42,29 @@ try {
 
 const PORT = process.env.PARZI_COMPANION_PORT || 7890;
 const PLATFORM = os.platform(); // 'win32' | 'darwin' | 'linux'
+
+// Secret token for authenticating local POST commands
+const COMPANION_TOKEN = (process.env.PARZI_COMPANION_TOKEN || crypto.randomBytes(24).toString('hex')).trim();
+
+// CORS allowlist: only the verified live frontend and local loopback origins
+const ALLOWED_ORIGIN_HOSTS = new Set([
+  'genaia-gilt.vercel.app',
+  'localhost',
+  '127.0.0.1',
+]);
+
+function getCorsOrigin(req) {
+  const origin = req?.headers?.origin;
+  if (!origin) return null;
+  try {
+    const parsed = new URL(origin);
+    if (ALLOWED_ORIGIN_HOSTS.has(parsed.hostname)) {
+      return origin;
+    }
+  } catch {}
+  return null;
+}
+
 
 // =================================================================
 // PC app-opening — add / edit friendly-name -> launch-target here.
@@ -116,21 +140,38 @@ function resolvePcTarget(name) {
 
 function openAppOnPC(appName) {
   return new Promise((resolve, reject) => {
-    const resolved = resolvePcTarget(appName) || appName; // fall back to raw name (e.g. user types the exact exe/app name)
-    let cmd;
-    if (PLATFORM === 'win32') {
-      // `start ""` is the cmd.exe builtin for "launch this like double-clicking it".
-      // Works for exe names on PATH, full paths, and URI schemes (ms-settings:, spotify:, etc).
-      cmd = `start "" "${resolved}"`;
-    } else if (PLATFORM === 'darwin') {
-      cmd = `open -a "${resolved}"`;
-    } else {
-      cmd = `nohup ${resolved} >/dev/null 2>&1 &`;
+    const raw = String(appName || '').trim();
+    if (!raw) return reject(new Error('No app name provided.'));
+
+    const mapped = resolvePcTarget(raw);
+    const resolved = mapped || raw;
+
+    // Strict validation if not pre-mapped: alphanumeric, spaces, dashes, dots, underscores, colons
+    if (!mapped && !/^[a-zA-Z0-9_\-\.\ :]{1,80}$/.test(raw)) {
+      return reject(new Error(`Invalid app name "${appName}". Only alphanumeric characters, dashes, and underscores are allowed.`));
     }
-    exec(cmd, { windowsHide: false }, (err, stdout, stderr) => {
-      if (err) return reject(new Error(`Couldn't open "${appName}" on this PC: ${stderr?.trim() || err.message}. Add it to PC_APP_MAP in companion-server.js if it's not a common app.`));
-      resolve(resolved);
-    });
+
+    if (PLATFORM === 'win32') {
+      // cmd.exe /c start "" <target> executes without shell concatenation vulnerability
+      execFile('cmd.exe', ['/c', 'start', '', resolved], { windowsHide: false }, (err) => {
+        if (err) return reject(new Error(`Couldn't open "${appName}" on this PC: ${err.message}. Add it to PC_APP_MAP in companion-server.js if it's not a common app.`));
+        resolve(resolved);
+      });
+    } else if (PLATFORM === 'darwin') {
+      execFile('open', ['-a', resolved], (err) => {
+        if (err) return reject(new Error(`Couldn't open "${appName}" on this Mac: ${err.message}`));
+        resolve(resolved);
+      });
+    } else {
+      try {
+        const child = spawn(resolved, [], { detached: true, stdio: 'ignore' });
+        child.unref();
+        child.on('error', (err) => reject(new Error(`Couldn't open "${appName}" on this Linux PC: ${err.message}`)));
+        resolve(resolved);
+      } catch (err) {
+        reject(new Error(`Couldn't open "${appName}": ${err.message}`));
+      }
+    }
   });
 }
 
@@ -834,20 +875,18 @@ function walkSearch(query, fileType, maxResults = 20, maxDepth = 4) {
 
 function revealInExplorer(filePath) {
   return new Promise((resolve, reject) => {
-    if (!fs.existsSync(filePath)) return reject(new Error(`File no longer exists at ${filePath}`));
-    let cmd;
+    if (!filePath || typeof filePath !== 'string') return reject(new Error('Invalid file path.'));
+    const resolvedPath = path.resolve(filePath);
+    if (!fs.existsSync(resolvedPath)) return reject(new Error(`File no longer exists at ${resolvedPath}`));
+
     if (PLATFORM === 'win32') {
-      // /select, highlights the file itself inside its folder.
-      cmd = `explorer.exe /select,"${filePath}"`;
+      // explorer.exe /select,"<resolvedPath>" without shell exec interpolation
+      execFile('explorer.exe', [`/select,${resolvedPath}`], { windowsHide: false }, () => resolve(true));
     } else if (PLATFORM === 'darwin') {
-      cmd = `open -R "${filePath}"`;
+      execFile('open', ['-R', resolvedPath], () => resolve(true));
     } else {
-      // No universal "reveal & select" on Linux — open the containing folder.
-      cmd = `xdg-open "${path.dirname(filePath)}"`;
+      execFile('xdg-open', [path.dirname(resolvedPath)], () => resolve(true));
     }
-    // explorer.exe returns a non-zero exit code on success sometimes (known
-    // Windows quirk), so we don't treat a non-zero exit as fatal here.
-    exec(cmd, { windowsHide: false }, () => resolve(true));
   });
 }
 
@@ -855,12 +894,17 @@ function revealInExplorer(filePath) {
 // HTTP server
 // =================================================================
 function send(res, status, body) {
-  res.writeHead(status, {
+  const headers = {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
+    'Vary': 'Origin',
     'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-  });
+    'Access-Control-Allow-Headers': 'Content-Type, X-Parzi-Token',
+  };
+  const origin = res._req ? getCorsOrigin(res._req) : null;
+  if (origin) {
+    headers['Access-Control-Allow-Origin'] = origin;
+  }
+  res.writeHead(status, headers);
   res.end(JSON.stringify(body));
 }
 
@@ -1022,7 +1066,17 @@ async function searchWeb(query, limit = 5) {
 }
 
 const server = http.createServer((req, res) => {
+  res._req = req;
+
   if (req.method === 'OPTIONS') return send(res, 204, {});
+
+  // Require secret token on all state-changing POST requests
+  if (req.method === 'POST') {
+    const token = req.headers['x-parzi-token'];
+    if (!token || token !== COMPANION_TOKEN) {
+      return send(res, 401, { ok: false, error: 'Unauthorized: missing or invalid X-Parzi-Token' });
+    }
+  }
 
   const reqUrl = new URL(req.url, `http://${req.headers.host || '127.0.0.1'}`);
 
@@ -1142,6 +1196,8 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, '127.0.0.1', () => {
   console.log(`Parzi companion server running at http://127.0.0.1:${PORT}  (platform: ${PLATFORM})`);
+  console.log(`🔑 Companion Security Token: ${COMPANION_TOKEN}`);
+  console.log('   (Enter this token in Parzi Settings > Companion App to authorize commands)');
   console.log('PC app-opening is ready to use right now — try "open notepad" / "open chrome".');
   console.log('File search/locate is ready too — try "find my Q3 report" (searches Documents/Downloads/Desktop/OneDrive).');
   getDevice().then((device) => {

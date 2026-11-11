@@ -25,3 +25,6 @@ divines eye/**
 # OS files
 .DS_Store
 Thumbs.db
+
+# Sensitive local contacts
+contacts.json

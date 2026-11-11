@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delete Account & Data - Parzi</title>
+  <style>
+    :root {
+      --bg: #0a0c10;
+      --card: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --danger: #f85149;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.65;
+      padding: 2rem 1rem;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2.5rem;
+    }
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .back-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    .back-link:hover { text-decoration: underline; }
+    h2 {
+      font-size: 1.25rem;
+      color: #fff;
+      margin-top: 1.8rem;
+      margin-bottom: 0.75rem;
+    }
+    p, ul {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    ul { padding-left: 1.5rem; }
+    li { margin-bottom: 0.4rem; }
+    strong { color: var(--text); }
+    code {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.88rem;
+      color: #58a6ff;
+    }
+    .action-card {
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      background: rgba(248, 81, 73, 0.08);
+      border: 1px solid rgba(248, 81, 73, 0.3);
+      border-radius: 8px;
+    }
+    .wipe-btn {
+      background: var(--danger);
+      color: #fff;
+      border: none;
+      padding: 0.75rem 1.4rem;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 0.75rem;
+      transition: opacity 0.2s;
+    }
+    .wipe-btn:hover { opacity: 0.9; }
+    .status-msg {
+      margin-top: 0.8rem;
+      font-size: 0.9rem;
+      color: #3fb950;
+      display: none;
+    }
+    .contact-box {
+      margin-top: 2rem;
+      padding: 1.25rem;
+      background: rgba(88, 166, 255, 0.08);
+      border: 1px solid rgba(88, 166, 255, 0.2);
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Delete Account &amp; Data</h1>
+      <a href="/" class="back-link">← Back to Parzi</a>
+    </header>
+
+    <h2>No Account Exists on Our Servers</h2>
+    <p>
+      Parzi is architected as a <strong>100% private, client-side application</strong> without user accounts. We do not store names, emails, passwords, conversation histories, or IP addresses in any central server database. Because there are no server-side accounts, <strong>there is no account to delete from our servers</strong>.
+    </p>
+
+    <h2>Where Is Your Data Stored?</h2>
+    <p>
+      All chats, prompts, model keys, and configuration parameters are stored exclusively in your own browser's <code>localStorage</code> on this computer or phone.
+    </p>
+
+    <div class="action-card">
+      <h3 style="color:#fff;margin-bottom:0.5rem">Purge Local Data Instantly</h3>
+      <p style="margin-bottom:0.5rem">Click the button below to completely wipe all Parzi conversations, cached models, and stored settings from this browser:</p>
+      <button class="wipe-btn" id="btnWipe" onclick="handleWipe()">🗑️ Clear All Local Data</button>
+      <div class="status-msg" id="statusMsg">✓ All local Parzi data has been successfully cleared from your browser!</div>
+    </div>
+
+    <h2>Manual Deletion Instructions</h2>
+    <p>You can also clear your data manually at any time:</p>
+    <ul>
+      <li><strong>Inside Parzi:</strong> Go to <strong>Settings</strong> → <strong>Privacy &amp; About</strong> → Click <strong>🗑️ Wipe All Data</strong>.</li>
+      <li><strong>In Chrome / Edge:</strong> Open DevTools (F12) → <em>Application</em> → <em>Local Storage</em> → Right-click and choose <em>Clear</em>.</li>
+      <li><strong>In Firefox:</strong> Open DevTools (F12) → <em>Storage</em> → <em>Local Storage</em> → Delete all items.</li>
+      <li><strong>In Mobile Browsers:</strong> Clear site data or history for this domain in your browser settings.</li>
+    </ul>
+
+    <div class="contact-box">
+      <strong>Need Assistance?</strong>
+      <p style="margin-top:0.4rem;margin-bottom:0">Contact: <a href="mailto:hharasudhan122@gmail.com" style="color:var(--accent)">hharasudhan122@gmail.com</a></p>
+    </div>
+  </div>
+
+  <script>
+    function handleWipe() {
+      if (confirm('Are you sure you want to permanently clear all Parzi chats, prompts, and settings from this browser?')) {
+        try {
+          localStorage.clear();
+          sessionStorage.clear();
+          document.getElementById('statusMsg').style.display = 'block';
+          document.getElementById('btnWipe').disabled = true;
+          document.getElementById('btnWipe').style.opacity = '0.5';
+        } catch (e) {
+          alert('Error clearing data: ' + e.message);
+        }
+      }
+    }
+  </script>
+</body>
+</html>

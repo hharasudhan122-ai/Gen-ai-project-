@@ -106,7 +106,7 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Headers', '*');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const key = (process.env.FIRMS_MAP_KEY || 'b992eead29c2d499b3ad94f629e521ff').trim();
+  const key = (process.env.FIRMS_MAP_KEY || '').trim();
   const url = String(req.url || '');
 
   if (url.includes('/status')) {
@@ -191,3 +191,4 @@ module.exports = async (req, res) => {
     fires: allFires
   });
 };
+
