@@ -106,7 +106,8 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Headers', '*');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const key = (process.env.FIRMS_MAP_KEY || 'b992eead29c2d499b3ad94f629e521ff').trim();
+  const rawKey = (process.env.FIRMS_MAP_KEY || '').trim().replace(/^["']|["']$/g, '');
+  const key = (/^[a-f0-9]{32}$/i.test(rawKey)) ? rawKey : 'b992eead29c2d499b3ad94f629e521ff';
   const url = String(req.url || '');
 
   if (url.includes('/status')) {
@@ -157,7 +158,7 @@ module.exports = async (req, res) => {
         }
         return { source, count: 0, ok: false, status: r.status, reason: 'empty_or_unparseable', len: text.length, sample: text.slice(0, 100), fires: [] };
       }
-      return { source, count: 0, ok: false, status: r.status, reason: 'http_' + r.status, fires: [] };
+      const errText = await r.text(); return { source, count: 0, ok: false, status: r.status, reason: errText.slice(0, 150), fires: [] };
     } catch (e) {
       return { source, count: 0, ok: false, reason: e.name + ': ' + e.message, fires: [] };
     }
