@@ -5,6 +5,12 @@
   "functions": {
     "api/overpass.js": {
       "maxDuration": 30
+    },
+    "api/firms.js": {
+      "maxDuration": 30
+    },
+    "api/opensky.js": {
+      "maxDuration": 30
     }
   },
   "headers": [

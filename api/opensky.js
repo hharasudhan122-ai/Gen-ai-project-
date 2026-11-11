@@ -1,7 +1,7 @@
 /**
  * Live Flights Telemetry Aggregator for Divine's Eye (Vercel Serverless)
- * Queries wide-radius coordinates and global flight corridors to surface
- * hundreds to thousands of live commercial aircraft globally.
+ * Queries wide-radius coordinates and global flight corridors via adsb.lol (250 NM radius per point)
+ * to surface hundreds to thousands of live commercial aircraft globally.
  */
 
 module.exports = async (req, res) => {
@@ -14,17 +14,27 @@ module.exports = async (req, res) => {
   const lon = parseFloat(req.query.lon) || -97.0;
   const now = Math.floor(Date.now() / 1000);
 
-  // Collect from camera center with wide 1200nm radius + major continental corridors
+  const clat = Math.round(lat * 10) / 10;
+  const clon = Math.round(lon * 10) / 10;
+
+  // adsb.lol has a hard 250 NM cap per query. Query camera center + surrounding clusters + global corridors:
   const queryPoints = [
-    { lat: Math.round(lat * 10) / 10, lon: Math.round(lon * 10) / 10, dist: 1200 },
-    { lat: 40.7, lon: -74.0, dist: 800 },   // US East (NY/Boston/DC)
-    { lat: 33.7, lon: -84.4, dist: 800 },   // US Southeast (Atlanta/Florida)
-    { lat: 34.0, lon: -118.2, dist: 800 },  // US West (California/Pacific)
-    { lat: 41.9, lon: -87.6, dist: 800 },   // US Midwest (Chicago/Great Lakes)
-    { lat: 51.5, lon: 0.0, dist: 800 },     // Europe / UK (London/Paris/Frankfurt)
-    { lat: 35.7, lon: 139.7, dist: 800 },   // East Asia (Tokyo/Japan)
-    { lat: 1.35, lon: 103.8, dist: 800 },   // Southeast Asia (Singapore/Malaysia)
-    { lat: 25.2, lon: 55.3, dist: 800 }     // Middle East (Dubai/Doha)
+    { lat: clat, lon: clon, dist: 250 },
+    { lat: clat + 3, lon: clon, dist: 250 },
+    { lat: clat - 3, lon: clon, dist: 250 },
+    { lat: clat, lon: clon + 3, dist: 250 },
+    { lat: clat, lon: clon - 3, dist: 250 },
+    { lat: 40.7, lon: -74.0, dist: 250 },   // US East (NY/Boston/DC)
+    { lat: 33.7, lon: -84.4, dist: 250 },   // US Southeast (Atlanta/Florida)
+    { lat: 34.0, lon: -118.2, dist: 250 },  // US West (California/Pacific)
+    { lat: 41.9, lon: -87.6, dist: 250 },   // US Midwest (Chicago/Great Lakes)
+    { lat: 51.5, lon: 0.0, dist: 250 },     // Europe / UK (London/Paris/Frankfurt)
+    { lat: 48.8, lon: 2.3, dist: 250 },     // Europe (Paris)
+    { lat: 35.7, lon: 139.7, dist: 250 },   // East Asia (Tokyo/Japan)
+    { lat: 1.35, lon: 103.8, dist: 250 },   // Southeast Asia (Singapore/Malaysia)
+    { lat: 13.0, lon: 80.0, dist: 250 },    // India South (Chennai/Bangalore)
+    { lat: 28.6, lon: 77.2, dist: 250 },    // India North (Delhi)
+    { lat: 25.2, lon: 55.3, dist: 250 }     // Middle East (Dubai/Doha)
   ];
 
   try {
@@ -82,6 +92,8 @@ module.exports = async (req, res) => {
 
     res.setHeader('Cache-Control', 'public, s-maxage=6, stale-while-revalidate=20');
     res.setHeader('Content-Type', 'application/json');
+    res.setHeader('x-flight-source', 'adsb.lol');
+    res.setHeader('x-flight-coverage', `${states.length} commercial flights`);
     return res.status(200).json({ time: now, states });
 
   } catch (err) {

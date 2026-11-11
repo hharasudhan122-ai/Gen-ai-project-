@@ -1,6 +1,6 @@
 /**
  * NASA FIRMS Live Active Fires Proxy for Divine's Eye on Vercel
- * Upstream: https://firms.modaps.eosdis.nasa.gov/api/area/csv/{KEY}/{SOURCE}/world/2
+ * Upstream: https://firms.modaps.eosdis.nasa.gov/api/area/csv/{KEY}/{SOURCE}/world/1
  * Returns: { fetchedAt, stale, ttlMs, sources, count, fires }
  */
 
@@ -15,7 +15,7 @@ function isLikelyCsv(text) {
   const headerLine = trimmed.slice(0, trimmed.indexOf('\n') === -1 ? undefined : trimmed.indexOf('\n'))
     .trim().toLowerCase();
   const fields = headerLine.split(',').map((f) => f.trim());
-  return ['latitude', 'longitude', 'acq_date', 'acq_time', 'confidence', 'frp'].every((r) => fields.includes(r));
+  return ['latitude', 'longitude', 'acq_date', 'acq_time', 'confidence'].every((r) => fields.includes(r));
 }
 
 function acquisitionMsUtc(acqDate, acqTime) {
@@ -106,7 +106,7 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Headers', '*');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const key = (process.env.FIRMS_MAP_KEY || '').trim();
+  const key = (process.env.FIRMS_MAP_KEY || 'b992eead29c2d499b3ad94f629e521ff').trim();
   const url = String(req.url || '');
 
   if (url.includes('/status')) {
@@ -138,29 +138,40 @@ module.exports = async (req, res) => {
     });
   }
 
-  const SOURCES = ['VIIRS_SNPP_NRT', 'VIIRS_NOAA20_NRT'];
-  const sourcesOut = [];
-  const allFires = [];
+  // MODIS is fast & rock-solid; NOAA20 has dense VIIRS detection
+  const SOURCES = ['MODIS_NRT', 'VIIRS_NOAA20_NRT'];
 
-  for (const source of SOURCES) {
+  const fetchPromises = SOURCES.map(async (source) => {
     try {
-      const upstreamUrl = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${encodeURIComponent(key)}/${source}/world/2`;
-      const r = await fetch(upstreamUrl, { signal: AbortSignal.timeout(25000) });
+      const upstreamUrl = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${encodeURIComponent(key)}/${source}/world/1`;
+      const r = await fetch(upstreamUrl, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
+        signal: AbortSignal.timeout(12000)
+      });
       if (r.ok) {
         const text = await r.text();
         const records = parseFirmsCsv(text);
-        if (records) {
+        if (records && records.length > 0) {
           const trailing = filterTrailing24h(records, now);
-          sourcesOut.push({ source, count: trailing.length, ok: true });
-          allFires.push(...trailing);
-        } else {
-          sourcesOut.push({ source, count: 0, ok: false });
+          return { source, count: trailing.length, ok: true, fires: trailing };
         }
-      } else {
-        sourcesOut.push({ source, count: 0, ok: false });
       }
+      return { source, count: 0, ok: false, fires: [] };
     } catch (e) {
-      sourcesOut.push({ source, count: 0, ok: false });
+      return { source, count: 0, ok: false, fires: [] };
+    }
+  });
+
+  const settled = await Promise.allSettled(fetchPromises);
+  const sourcesOut = [];
+  const allFires = [];
+
+  for (const item of settled) {
+    if (item.status === 'fulfilled') {
+      sourcesOut.push({ source: item.value.source, count: item.value.count, ok: item.value.ok });
+      if (item.value.ok && item.value.fires.length > 0) {
+        allFires.push(...item.value.fires);
+      }
     }
   }
 
@@ -191,4 +202,3 @@ module.exports = async (req, res) => {
     fires: allFires
   });
 };
-
